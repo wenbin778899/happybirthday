@@ -41,17 +41,73 @@ a {color:#000;font-size:14px;}
 #quote-close:hover{color:#FF3B30;}
 @keyframes popIn{0%{transform:scale(.6) translateY(30px);opacity:0;}100%{transform:scale(1) translateY(0);opacity:1;}}
 
-/* Responsive adjustments */
+/* Responsive adjustments - 移动端优化 */
+/* 增大触摸区域，优化移动端交互 */
+button, .memory-btn, .firework-btn, .theme-toggle, .back-to-top {
+    min-height: 44px; /* iOS建议的最小触摸目标尺寸 */
+    min-width: 44px;
+}
+
+/* 改进的响应式断点 */
 @media (max-width:1200px){
 	#wrap{width:1000px;}
 	.slideshow{position:static;margin:20px auto;width:90%;}
 	#text{position:relative;left:auto;top:auto;width:90%;}
 }
-@media (max-width:720px){
-	#wrap{width:100%;height:auto;}
-	#canvas{display:none;} /* 小屏隐藏大画布, 保证可读性 */
-	.slideshow .slide-image-wrapper{height:240px;}
-	.controls button{flex:1 1 45%;}
+
+/* 平板适配 */
+@media (max-width:768px){
+	#wrap{width:100%;height:auto;padding:0 10px;box-sizing:border-box;}
+	#text{position:static;width:100%;padding:20px;box-sizing:border-box;text-align:center;}
+	#text .say{font-size:18px;line-height:1.6;margin-bottom:10px;}
+	#canvas{width:100%;height:400px;margin:20px 0;}
+	.slideshow{width:95%;margin:20px auto;}
+	.slideshow.float-card{width:85%;max-width:400px;right:5%;bottom:20px;}
+	.slideshow .slide-image-wrapper{height:280px;}
+	.controls{gap:8px;}
+	.controls button{font-size:16px;padding:12px 16px;}
+	
+	/* 调整按钮位置避免重叠 */
+	.memory-btn{right:20px;bottom:140px;width:56px;height:56px;font-size:22px;}
+	.firework-btn{right:20px;bottom:200px;padding:14px 18px;font-size:18px;}
+	.theme-toggle{right:20px;bottom:80px;padding:10px 16px;font-size:16px;}
+}
+
+/* 手机适配 */
+@media (max-width:480px){
+	#wrap{padding:0 5px;}
+	#text{padding:15px;}
+	#text .say{font-size:16px;}
+	#text h1{font-size:24px;}
+	#text h2{font-size:20px;}
+	#canvas{height:300px;} /* 进一步缩小以节省空间 */
+	
+	.slideshow{width:98%;margin:15px auto;}
+	.slideshow.float-card{width:95%;right:2.5%;bottom:15px;}
+	.slideshow .slide-image-wrapper{height:200px;}
+	.slideshow .slide-header{padding:10px 12px;}
+	.slideshow .slide-title{font-size:15px;}
+	.slideshow .slide-close{width:40px;height:40px;line-height:38px;font-size:20px;}
+	#slide-caption{font-size:14px;padding:0 8px;}
+	.controls{flex-direction:column;gap:10px;}
+	.controls button{width:100%;font-size:17px;padding:14px;border-radius:12px;}
+	
+	/* 移动端按钮优化 */
+	.memory-btn{width:60px;height:60px;font-size:24px;right:15px;bottom:120px;box-shadow:0 4px 12px rgba(255,135,67,0.6);}
+	.firework-btn{right:15px;bottom:190px;padding:16px 20px;font-size:16px;border-radius:16px;}
+	.theme-toggle{right:15px;bottom:60px;padding:12px 18px;border-radius:20px;}
+	.back-to-top{right:15px;bottom:10px;padding:12px 16px;}
+	
+	/* 文字可读性优化 */
+	.say{margin-left:0;text-align:left;line-height:1.8;}
+	.space{margin-right:0;}
+}
+
+/* 超小屏幕适配 */
+@media (max-width:360px){
+	#text .say{font-size:15px;}
+	.slideshow .slide-image-wrapper{height:160px;}
+	.controls button{font-size:16px;padding:12px;}
 }
 /* ===== Bottom vertical gallery ===== */
 #bro-gallery{max-width:1100px;margin:40px auto 120px auto;padding:0 20px;font-family:'Microsoft YaHei','PingFang SC',sans-serif;}
@@ -144,3 +200,78 @@ body.dark .mini-slideshow .ms-caption{color:#e5e5e5;}
 body.dark .mini-slideshow .ms-controls button{background:#333;}
 body.dark .mini-slideshow .ms-controls button:hover{background:#ff6363;}
 body.dark .mini-slideshow .ms-progress{background:rgba(255,255,255,0.15);}
+
+/* ===== 移动端触控优化 ===== */
+/* 为所有交互元素添加触控支持 */
+.firework-btn, .memory-btn, .theme-toggle, .back-to-top, .controls button {
+    touch-action: manipulation; /* 防止双击缩放 */
+    -webkit-tap-highlight-color: transparent; /* 去除点击高亮 */
+}
+
+/* 移动端烟花性能优化 */
+@media (max-width: 768px) {
+    .firework-canvas {
+        /* 在移动端降低渲染精度以提升性能 */
+        image-rendering: optimizeSpeed;
+        image-rendering: -webkit-optimize-contrast;
+    }
+}
+
+/* 移动端手势支持 */
+.slideshow.float-card {
+    touch-action: pan-x pan-y; /* 支持拖拽 */
+}
+
+/* 防止移动端缩放 */
+html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+/* 移动端滚动优化 */
+body {
+    -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
+    overscroll-behavior: contain; /* 防止过度滚动 */
+}
+
+/* 移动端按钮按压反馈 */
+.firework-btn:active, .memory-btn:active, .controls button:active {
+    transition-duration: 0.1s;
+}
+
+/* 针对触摸设备的特殊样式 */
+@media (hover: none) and (pointer: coarse) {
+    /* 增大触摸目标 */
+    .slideshow .slide-close {
+        width: 44px;
+        height: 44px;
+        line-height: 42px;
+        font-size: 22px;
+    }
+    
+    .controls button {
+        min-height: 48px;
+        font-size: 18px;
+    }
+    
+    /* 移除悬停效果，使用按压效果 */
+    .firework-btn:hover, .memory-btn:hover, .controls button:hover {
+        transform: none;
+        background: #ff9f43;
+    }
+    
+    .firework-btn:active {
+        transform: scale(0.95);
+        background: #ff7f29;
+    }
+    
+    .memory-btn:active {
+        transform: scale(0.95);
+        background: linear-gradient(145deg,#ff8529,#ff6b00);
+    }
+    
+    .controls button:active {
+        transform: scale(0.95);
+        background: #ff3b30;
+    }
+}

@@ -1,5 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "htt`://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>兄弟生日快乐!</title>     
     <link type="text/css" rel="stylesheet" href="./css/default.css">
     <script type="text/javascript" src="./css/jquery.min.js"></script>
@@ -330,42 +331,79 @@
             slideWrap.style.left=''; slideWrap.style.top=''; slideWrap.style.right=''; slideWrap.style.bottom='';
         }
     });
-    // 拖动，仅在悬浮模式
+    // 拖动，仅在悬浮模式 - 支持触摸和鼠标
     (function enableDrag(){
         let dragging=false, ox=0, oy=0;
-        slideHeader.addEventListener('mousedown', (e)=>{
-            if(!floating) return; dragging=true; slideWrap.classList.add('dragging');
+        
+        // 获取事件坐标（兼容触摸和鼠标）
+        function getEventPos(e) {
+            const touch = e.touches ? e.touches[0] : e;
+            return { x: touch.clientX, y: touch.clientY };
+        }
+        
+        // 鼠标事件
+        slideHeader.addEventListener('mousedown', startDrag);
+        window.addEventListener('mousemove', doDrag);
+        window.addEventListener('mouseup', endDrag);
+        
+        // 触摸事件
+        slideHeader.addEventListener('touchstart', startDrag, { passive: false });
+        window.addEventListener('touchmove', doDrag, { passive: false });
+        window.addEventListener('touchend', endDrag);
+        
+        function startDrag(e) {
+            if(!floating) return;
+            dragging = true;
+            slideWrap.classList.add('dragging');
             const r = slideWrap.getBoundingClientRect();
-            ox = e.clientX - r.left; oy = e.clientY - r.top;
+            const pos = getEventPos(e);
+            ox = pos.x - r.left;
+            oy = pos.y - r.top;
             e.preventDefault();
-        });
-        window.addEventListener('mousemove', (e)=>{
-            if(!dragging) return; 
-            const nx = e.clientX - ox; const ny = e.clientY - oy;
+        }
+        
+        function doDrag(e) {
+            if(!dragging) return;
+            const pos = getEventPos(e);
+            const nx = pos.x - ox;
+            const ny = pos.y - oy;
             slideWrap.style.left = nx + 'px';
             slideWrap.style.top = ny + 'px';
             slideWrap.style.right = 'auto';
             slideWrap.style.bottom = 'auto';
-        });
-        window.addEventListener('mouseup', ()=>{ if(dragging){ dragging=false; slideWrap.classList.remove('dragging'); }});
+            e.preventDefault();
+        }
+        
+        function endDrag() {
+            if(dragging) {
+                dragging = false;
+                slideWrap.classList.remove('dragging');
+            }
+        }
     })();
         /* =============== 烟花逻辑（性能优化版） =============== */
         const fwBtn = document.getElementById('firework-btn');
         let fwCanvas = null, fwCtx=null, fireworks=[], particles=[];
         const fwState = { running:false, raf:0, lastTS:0, fpsEMA:60, frames:0, resScale:1, lastClick:0 };
+        
+        // 移动端检测
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                         window.innerWidth <= 768 || 
+                         ('ontouchstart' in window);
+        
         const FW = {
             // 性能目标与阈值
-            minFPS: 48,          // 低于则降级
-            recoverFPS: 57,      // 高于则尝试恢复
-            // 数量上限
-            maxParticles: 320,   // 总粒子硬上限
-            maxFireworks: 15,     // 同屏烟花硬上限（不含未爆）
+            minFPS: isMobile ? 40 : 48,          // 移动端降低FPS要求
+            recoverFPS: isMobile ? 50 : 57,      // 移动端降低恢复阈值
+            // 数量上限 - 移动端减半
+            maxParticles: isMobile ? 160 : 320,   // 移动端减少粒子数
+            maxFireworks: isMobile ? 8 : 15,     // 移动端减少同屏烟花
             // 基础强度（按质量缩放）
-            baseBurst: 10,        // 每次点击发射的烟花数量（基础）
-            baseParticles: 60,   // 每次爆炸生成的粒子（基础）
+            baseBurst: isMobile ? 6 : 10,        // 移动端减少发射数量
+            baseParticles: isMobile ? 40 : 60,   // 移动端减少爆炸粒子
             // 渲染参数
-            trailLen: 15,         // 轨迹点数量（基础）
-            cooldown: 50,       // 点击冷却(ms) — 如需更快可改为 250
+            trailLen: isMobile ? 10 : 15,         // 移动端缩短轨迹
+            cooldown: isMobile ? 300 : 50,       // 移动端增加冷却时间防止过热
         };
         // 按钮提示气泡
         function tipAtBtn(text){
@@ -517,7 +555,15 @@
             }
             fwState.raf = requestAnimationFrame(fwLoop);
         }
-        fwBtn.addEventListener('click', ()=>{
+        
+        // 移动端优化：简化为单击触发，但保持双击显示文字
+        let fireworkClickCount = 0;
+        let fireworkClickTimer = null;
+        
+        // 不修改按钮文字，保持"双击放烟花"的显示
+        // 但实际功能改为单击即可触发
+        
+        function handleFireworkTrigger() {
             ensureCanvas();
             const now = performance.now();
             if(now - fwState.lastClick < FW.cooldown){
@@ -535,7 +581,7 @@
             if(slots <= 0){ tipAtBtn('繁忙'); return; }
             burst = Math.max(1, Math.min(burst, slots));
             const centerX = window.innerWidth/2;
-            const baseDelay = 160;
+            const baseDelay = isMobile ? 200 : 160; // 移动端延迟稍长
             for(let i=0;i<burst;i++){
                 if(fireworks.length >= FW.maxFireworks) break;
                 setTimeout(()=>{
@@ -544,7 +590,14 @@
                     createFirework(centerX, window.innerHeight, tx, ty);
                 }, i*baseDelay);
             }
+        }
+        
+        // 统一使用单击触发（不管桌面端还是移动端）
+        // 保持"双击放烟花"的提示文字，但实际单击就能用
+        fwBtn.addEventListener('click', ()=>{
+            handleFireworkTrigger();
         });
+        
         /* =============== 滚动彩带（轻量） =============== */
         const milestones=[25,50,75,100];
         const firedMilestones=new Set();
