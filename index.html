@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "htt`://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xml:lang="en" xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>生日快乐!</title>     
+    <title>兄弟生日快乐!</title>     
     <link type="text/css" rel="stylesheet" href="./css/default.css">
     <script type="text/javascript" src="./css/jquery.min.js"></script>
     <script type="text/javascript" src="./css/jscex.min.js"></script>
@@ -26,18 +26,20 @@
                 <div id="text">
               <div id="code">
             <font color="#FF0000">    
-<span class="say"><h1>我希望有个如你一般的人。</h1></span><br><br>
-<span class="say">我希望有个如你一般的人。</span><br> <br>    
-<span class="say">如这山间清晨一般明亮清爽，</span><br><br>
-<span class="say">如奔赴古城道路上阳光一般的人，</span><br><br>
-<span class="say">温暖而不炙热，覆盖我所有肌肤。</span><br><br>
-<span class="say">由起点到夜晚，由山野到书房，一切问题的答案都很简单。</span><br><br>
-<span class="say">我希望有个如你一般的人，贯彻未来，数遍生命的公路牌。</span><br><br>
-<span class="say"><span class="space"></span> -- 刘军涛--</span><br>
-<span class="say"><h1>生日快乐!</h1></span><br>
+<span class="say"><h1>致最好的Duck：</h1></span><br><br>
+<span class="say">当年少年许下的狂言，如今正一笔一划写进岁月。</span><br><br>
+<span class="say">一同驰骋峡谷、熬过长夜、扛过风雨，也为彼此喝彩。</span><br><br>
+<span class="say">不饰锋芒，不掩真心，喜怒哀乐皆是当面出剑。</span><br><br>
+<span class="say">有人敬你一杯酒，我便愿送你一程山水——此后天涯，同走江湖。</span><br><br>
+<span class="say">愿你：胸怀星火，眼底长明，脚下坦途，肩上有风。</span><br><br>
+<span class="say">得意时，我是与你同饮的酒客；失意时，我是替你挡刀的故人。</span><br><br>
+<span class="say">今夜不说煽情，只留一句：</span><br><br>
+<span class="say"><h2>今夜暂许你梦里</h2></span><br>
+<span class="say"><span class="space"></span> -- 来自老朋友Bear</span><br>
         </font>
       </div>
                 </div>
+                <!-- 旧幻灯已移除，改为底部纵向画廊 -->
                 <div id="clock-box">
                     <!-- <span class="STYLE1"></span><font color="#33CC00">距离我喜欢你，</font>
 <span class="STYLE1">已经是……</span> -->
@@ -201,14 +203,367 @@
             $await(growAnimate());
             $await(flowAnimate());
             $await(moveAnimate());
-
             textAnimate().start();
-
             $await(jumpAnimate());
         }));
 
         runAsync().start();
     })();
     </script>
+<!-- 底部纵向兄弟纪念画廊 -->
+ <!-- 替换为底部内联轮播 -->
+ <section id="bro-slideshow" class="slideshow inline-bottom" aria-label="兄弟照片轮播">
+     <div class="slide-header" id="slide-header">
+         <span class="slide-title">记忆播放</span>
+         <span class="slide-close" id="slide-close" title="关闭">×</span>
+     </div>
+     <div class="slide-image-wrapper">
+     <img id="slide-image" src="photo/fig1.jpg" alt="slideshow" loading="lazy" />
+   </div>
+   <div id="slide-caption">第一张：兄弟情起点——一起的傻笑是证据</div>
+   <div id="slide-progress"><div id="slide-progress-bar"></div></div>
+   <div class="controls">
+     <button id="prev-slide">上一张</button>
+     <button id="play-slide">暂停</button>
+     <button id="next-slide">下一张</button>
+         <button id="toggle-float" title="切换为悬浮窗口">悬浮</button>
+   </div>
+ </section>
+ <div id="back-to-top" class="back-to-top" title="返回顶部">▲</div>
+ <div id="scroll-progress"><div class="bar"></div></div>
+ <button id="theme-toggle" class="theme-toggle" title="切换主题">🌗</button>
+ <button id="memory-btn" class="memory-btn" title="打开/关闭记忆播放">🖼</button>
+ <button id="firework-btn" class="firework-btn" title="双击释放烟花">🎆 双击放烟花</button>
+<script>
+// 组件交互脚本（不影响原心形树逻辑）
+(function(){
+    const backTop = document.getElementById('back-to-top');
+    const progressBar = document.querySelector('#scroll-progress .bar');
+    const themeToggle = document.getElementById('theme-toggle');
+    // 滚动进度 & 返回顶部显示
+    window.addEventListener('scroll', ()=>{
+        const st = window.scrollY;
+        const dh = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = dh? (st/dh)*100 : 0;
+        progressBar.style.width = pct + '%';
+        if(st>400) backTop.classList.add('show'); else backTop.classList.remove('show');
+    });
+    backTop.addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
+    // 主题切换
+    themeToggle.addEventListener('click', ()=>{
+        document.body.classList.toggle('dark');
+        localStorage.setItem('broTheme', document.body.classList.contains('dark')? 'dark':'light');
+    });
+    // 恢复主题
+    (function(){const t = localStorage.getItem('broTheme'); if(t==='dark'){document.body.classList.add('dark');}})();
 
-    </body></html>
+    /* ====== 底部内联轮播 ====== */
+    const album = [
+        {src:'photo/fig1.jpg', cap:'第一张：兄弟情起点——一起的傻笑是证据'},
+        {src:'photo/fig2.jpg', cap:'第二张：那时我们觉得世界很大，其实口袋就装得下梦想'},
+        {src:'photo/fig3.jpg', cap:'第三张：一起踩过的坑，最后都变成了段子'},
+        {src:'photo/fig4.jpg', cap:'第四张：不管风多大，这种肩并肩的姿势没变'},
+        {src:'photo/fig5.jpg', cap:'第五张：有兄弟的地方，就是主场'},
+        {src:'photo/fig6.jpg', cap:'第六张：笑点共享，负担平摊'},
+        {src:'photo/fig7.jpg', cap:'第七张：这姿势说明——那天肯定又吹了很远的未来'},
+        {src:'photo/fig8.jpg', cap:'第八张：友情这条路，没有终点站'},
+        {src:'photo/fig9.jpg', cap:'第九张：继续升级打怪，我们都要更强'},
+        {src:'photo/fig10.jpg', cap:'第十张：彼此的底牌与底气'},
+        {src:'photo/fig11.jpg', cap:'第十一张：有些瞬间不炫酷，却永远热血'},
+        {src:'photo/fig12.jpg', cap:'第十二张：未来几年，再补更多新图'},
+        {src:'photo/fig13.jpg', cap:'第十三张：兄弟，生日快乐，继续上大分！'}
+    ];
+    const slideImg = document.getElementById('slide-image');
+    const slideCap = document.getElementById('slide-caption');
+    const prevBtn = document.getElementById('prev-slide');
+    const playBtn = document.getElementById('play-slide');
+    const nextBtn = document.getElementById('next-slide');
+    const toggleFloatBtn = document.getElementById('toggle-float');
+    const slideClose = document.getElementById('slide-close');
+    const slideHeader = document.getElementById('slide-header');
+    const slideWrap = document.getElementById('bro-slideshow');
+    const memoryBtn = document.getElementById('memory-btn');
+    const bar = document.getElementById('slide-progress-bar');
+    let idx = 0, playing = true, interval = 3800, rafId = 0, startTS = 0;
+    function show(n){
+        idx = (n+album.length)%album.length;
+        // 淡出-换图-淡入
+        slideImg.style.opacity='0';
+        setTimeout(()=>{
+            slideImg.src = album[idx].src;
+            slideImg.alt = album[idx].cap;
+            slideCap.textContent = album[idx].cap;
+            slideImg.onload = ()=>{ slideImg.style.opacity='1'; };
+        }, 220);
+        restartProgress();
+    }
+    function restartProgress(){
+        cancelAnimationFrame(rafId); bar.style.width='0%'; startTS = performance.now();
+        function loop(t){
+            const pct = Math.min(1, (t-startTS)/interval);
+            bar.style.width = (pct*100)+'%';
+            if(pct>=1){ show(idx+1); return; }
+            if(playing) rafId = requestAnimationFrame(loop);
+        }
+        if(playing) rafId = requestAnimationFrame(loop);
+    }
+    prevBtn.addEventListener('click', ()=>{ show(idx-1); });
+    nextBtn.addEventListener('click', ()=>{ show(idx+1); });
+    playBtn.addEventListener('click', ()=>{ playing=!playing; playBtn.textContent = playing? '暂停':'播放'; if(playing) restartProgress(); });
+    // 打开/关闭与悬浮拖动
+    function setVisible(v){ slideWrap.style.display = v? 'block':'none'; }
+    setVisible(false); // 默认关闭
+    memoryBtn.addEventListener('click', ()=>{ const vis = slideWrap.style.display !== 'none'; setVisible(!vis? true:false); if(!vis){ show(0); } });
+    slideClose.addEventListener('click', ()=> setVisible(false));
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') setVisible(false); });
+    // 悬浮切换
+    let floating = false; 
+    toggleFloatBtn.addEventListener('click', ()=>{
+        floating = !floating;
+        toggleFloatBtn.textContent = floating? '贴底': '悬浮';
+        slideWrap.classList.toggle('inline-bottom', !floating);
+        slideWrap.classList.toggle('float-card', floating);
+        if(floating){
+            // 右下角默认位
+            slideWrap.style.left='auto'; slideWrap.style.top='auto'; slideWrap.style.right='24px'; slideWrap.style.bottom='24px';
+        }else{
+            slideWrap.style.left=''; slideWrap.style.top=''; slideWrap.style.right=''; slideWrap.style.bottom='';
+        }
+    });
+    // 拖动，仅在悬浮模式
+    (function enableDrag(){
+        let dragging=false, ox=0, oy=0;
+        slideHeader.addEventListener('mousedown', (e)=>{
+            if(!floating) return; dragging=true; slideWrap.classList.add('dragging');
+            const r = slideWrap.getBoundingClientRect();
+            ox = e.clientX - r.left; oy = e.clientY - r.top;
+            e.preventDefault();
+        });
+        window.addEventListener('mousemove', (e)=>{
+            if(!dragging) return; 
+            const nx = e.clientX - ox; const ny = e.clientY - oy;
+            slideWrap.style.left = nx + 'px';
+            slideWrap.style.top = ny + 'px';
+            slideWrap.style.right = 'auto';
+            slideWrap.style.bottom = 'auto';
+        });
+        window.addEventListener('mouseup', ()=>{ if(dragging){ dragging=false; slideWrap.classList.remove('dragging'); }});
+    })();
+        /* =============== 烟花逻辑（性能优化版） =============== */
+        const fwBtn = document.getElementById('firework-btn');
+        let fwCanvas = null, fwCtx=null, fireworks=[], particles=[];
+        const fwState = { running:false, raf:0, lastTS:0, fpsEMA:60, frames:0, resScale:1, lastClick:0 };
+        const FW = {
+            // 性能目标与阈值
+            minFPS: 48,          // 低于则降级
+            recoverFPS: 57,      // 高于则尝试恢复
+            // 数量上限
+            maxParticles: 320,   // 总粒子硬上限
+            maxFireworks: 15,     // 同屏烟花硬上限（不含未爆）
+            // 基础强度（按质量缩放）
+            baseBurst: 10,        // 每次点击发射的烟花数量（基础）
+            baseParticles: 60,   // 每次爆炸生成的粒子（基础）
+            // 渲染参数
+            trailLen: 15,         // 轨迹点数量（基础）
+            cooldown: 50,       // 点击冷却(ms) — 如需更快可改为 250
+        };
+        // 按钮提示气泡
+        function tipAtBtn(text){
+            try{
+                const r = fwBtn.getBoundingClientRect();
+                const el = document.createElement('div');
+                el.textContent = text;
+                el.style.cssText = `position:fixed;left:${r.left + r.width/2}px;top:${r.top - 8}px;transform:translate(-50%,-100%);`+
+                    `background:rgba(0,0,0,.65);color:#fff;padding:2px 6px;border-radius:6px;font-size:12px;pointer-events:none;`+
+                    `opacity:0;transition:transform .25s ease, opacity .25s ease;z-index:9999;`;
+                document.body.appendChild(el);
+                requestAnimationFrame(()=>{ el.style.opacity='1'; el.style.transform = `translate(-50%,-140%)`; });
+                setTimeout(()=>{ el.style.opacity='0'; el.style.transform=`translate(-50%,-170%)`; }, 550);
+                setTimeout(()=>{ el.remove(); }, 900);
+            }catch(e){}
+        }
+        function ensureCanvas(){
+            if(!fwCanvas){
+                fwCanvas = document.createElement('canvas');
+                fwCanvas.className='firework-canvas';
+                document.body.appendChild(fwCanvas);
+                fwCtx = fwCanvas.getContext('2d');
+                resizeFW();
+                window.addEventListener('resize', resizeFW);
+            }
+        }
+        function applyScale(){
+            if(!fwCtx) return;
+            const DPR = Math.min(window.devicePixelRatio || 1, 1.5); // 上限避免过高DPR
+            const S = fwState.resScale; // 质量档：1 / 0.75 / 0.6
+            fwCanvas.width = Math.floor(window.innerWidth * DPR * S);
+            fwCanvas.height = Math.floor(window.innerHeight * DPR * S);
+            fwCanvas.style.width = window.innerWidth + 'px';
+            fwCanvas.style.height = window.innerHeight + 'px';
+            fwCtx.setTransform(DPR*S, 0, 0, DPR*S, 0, 0);
+        }
+        function resizeFW(){ if(!fwCanvas) return; applyScale(); }
+        function rand(min,max){return Math.random()*(max-min)+min;}
+        function qualityFactor(){ // 根据分辨率档等比缩减强度
+            return fwState.resScale; // 1, 0.75, 0.6
+        }
+        function startLoop(){
+            if(fwState.running || !fwCtx) return;
+            fwState.running = true;
+            fwState.lastTS = 0; fwState.frames=0; fwState.fpsEMA=60;
+            fwState.raf = requestAnimationFrame(fwLoop);
+        }
+        function stopLoop(){
+            if(!fwState.running) return;
+            fwState.running = false;
+            if(fwState.raf) cancelAnimationFrame(fwState.raf);
+            fwState.raf = 0;
+        }
+        function adjustQuality(){
+            // 每30帧评估一次
+            if(fwState.frames % 30 !== 0) return;
+            const fps = fwState.fpsEMA;
+            const levels = [1, 0.75, 0.6];
+            let idx = levels.indexOf(fwState.resScale);
+            if(fps < FW.minFPS && idx < levels.length-1){
+                fwState.resScale = levels[idx+1];
+                applyScale();
+            } else if(fps > FW.recoverFPS && idx > 0){
+                fwState.resScale = levels[idx-1];
+                applyScale();
+            }
+        }
+        function createFirework(sx,sy,tx,ty){
+            if(fireworks.length >= FW.maxFireworks) return;
+            const dist=Math.hypot(tx-sx,ty-sy);
+            const trailMax = Math.max(4, Math.round(FW.trailLen * qualityFactor()));
+            fireworks.push({x:sx,y:sy,sx,sy,tx,ty,dist,traveled:0,speed:rand(7,12),angle:Math.atan2(ty-sy,tx-sx),brightness:rand(70,100),trail:[],trailMax});
+        }
+        function createParticles(x,y){
+            const q = qualityFactor();
+            const count = Math.max(16, Math.round(FW.baseParticles * q));
+            for(let i=0;i<count;i++){
+                if(particles.length >= FW.maxParticles) break;
+                particles.push({x,y,r:rand(1.6,3.2),angle:Math.random()*Math.PI*2,speed:rand(2.2,9.5),friction:.90,gravity:.11,brightness:rand(60,100),alpha:1,decay:rand(.010,.020)});
+            }
+        }
+        function fwLoop(ts){
+            if(!fwCtx){ stopLoop(); return; }
+            // FPS 统计（指数滑动平均）
+            if(fwState.lastTS){
+                const dt = Math.min(200, ts - fwState.lastTS);
+                const inst = dt>0 ? 1000/dt : 60;
+                fwState.fpsEMA = fwState.fpsEMA*0.9 + inst*0.1;
+            }
+            fwState.lastTS = ts; fwState.frames++;
+            adjustQuality();
+
+            fwCtx.globalCompositeOperation='destination-out';
+            fwCtx.fillStyle='rgba(0,0,0,0.28)';
+            // 使用CSS像素尺寸清屏，避免在有setTransform缩放时过度绘制
+            fwCtx.fillRect(0,0,window.innerWidth,window.innerHeight);
+            fwCtx.globalCompositeOperation='lighter';
+
+            // update fireworks
+            for(let i=fireworks.length-1;i>=0;i--){
+                const f=fireworks[i];
+                const vx=Math.cos(f.angle)*f.speed;
+                const vy=Math.sin(f.angle)*f.speed;
+                f.x+=vx; f.y+=vy; f.traveled+=Math.hypot(vx,vy);
+                // 轨迹
+                f.trail.push({x:f.x,y:f.y});
+                if(f.trail.length>f.trailMax) f.trail.shift();
+                const hueF = ((ts/6 + i*20)%360);
+                for(let t=0;t<f.trail.length;t++){
+                    const pt=f.trail[t];
+                    const fade=t/f.trail.length;
+                    fwCtx.globalAlpha=fade*0.55;
+                    fwCtx.fillStyle='hsl('+hueF+',100%,'+f.brightness+'%)';
+                    fwCtx.fillRect(pt.x-1.5,pt.y-1.5,3,3);
+                }
+                fwCtx.globalAlpha=1;
+                fwCtx.beginPath();
+                fwCtx.arc(f.x,f.y,3,0,Math.PI*2);
+                fwCtx.fillStyle='hsl('+hueF+',100%,'+f.brightness+'%)';
+                fwCtx.fill();
+                if(f.traveled>=f.dist){
+                    fireworks.splice(i,1);
+                    createParticles(f.x,f.y);
+                }
+            }
+
+            // update particles
+            for(let i=particles.length-1;i>=0;i--){
+                const p=particles[i];
+                p.speed*=p.friction;
+                p.x+=Math.cos(p.angle)*p.speed;
+                p.y+=Math.sin(p.angle)*p.speed + p.gravity;
+                p.alpha-=p.decay;
+                if(p.alpha<=0){particles.splice(i,1); continue;}
+                fwCtx.globalAlpha=p.alpha;
+                fwCtx.beginPath();
+                fwCtx.arc(p.x,p.y,p.r,0,Math.PI*2);
+                const hue = ((ts/8 + i*5)%360);
+                fwCtx.fillStyle='hsl('+hue+',100%,'+p.brightness+'%)';
+                // 去掉昂贵的阴影模糊，依赖 lighter 混合实现“发光”
+                fwCtx.fill();
+                fwCtx.globalAlpha=1;
+            }
+
+            // 若空闲则停止循环，节省资源
+            if(fireworks.length===0 && particles.length===0){
+                stopLoop();
+                return;
+            }
+            fwState.raf = requestAnimationFrame(fwLoop);
+        }
+        fwBtn.addEventListener('click', ()=>{
+            ensureCanvas();
+            const now = performance.now();
+            if(now - fwState.lastClick < FW.cooldown){
+                tipAtBtn('冷却中');
+                return; // 节流
+            }
+            fwState.lastClick = now;
+            // 启动循环
+            startLoop();
+            // 依据质量决定发射数量
+            const q = qualityFactor();
+            let burst = Math.max(2, Math.round(FW.baseBurst * (q>=0.95?1: q>=0.7?0.9:0.8)));
+            // 若接近上限，按可用槽位收敛，避免静默失败
+            const slots = Math.max(0, FW.maxFireworks - fireworks.length);
+            if(slots <= 0){ tipAtBtn('繁忙'); return; }
+            burst = Math.max(1, Math.min(burst, slots));
+            const centerX = window.innerWidth/2;
+            const baseDelay = 160;
+            for(let i=0;i<burst;i++){
+                if(fireworks.length >= FW.maxFireworks) break;
+                setTimeout(()=>{
+                    const tx = rand(80, window.innerWidth-80);
+                    const ty = rand(80, window.innerHeight/2);
+                    createFirework(centerX, window.innerHeight, tx, ty);
+                }, i*baseDelay);
+            }
+        });
+        /* =============== 滚动彩带（轻量） =============== */
+        const milestones=[25,50,75,100];
+        const firedMilestones=new Set();
+        function throwConfetti(pct){
+            // 简化版彩带：生成少量下落矩形
+            const count=40; const colors=['#ff4d4d','#ffa64d','#ffd633','#52d6ff','#7c4dff'];
+            const layer=document.createElement('canvas');
+            layer.className='firework-canvas';
+            document.body.appendChild(layer); const ctx=layer.getContext('2d');
+            layer.width=innerWidth; layer.height=innerHeight;
+            const pieces=[]; for(let i=0;i<count;i++){pieces.push({x:Math.random()*innerWidth,y:-20-Math.random()*200,w:8+Math.random()*8,h:12+Math.random()*10,color:colors[Math.floor(Math.random()*colors.length)],speedY:2+Math.random()*4,rot:Math.random()*Math.PI,rotSpeed:(Math.random()-.5)*0.2});}
+            let frames=0; function anim(){ctx.clearRect(0,0,layer.width,layer.height); pieces.forEach(p=>{p.y+=p.speedY; p.rot+=p.rotSpeed; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=p.color; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); ctx.restore();}); frames++; if(frames<240){requestAnimationFrame(anim);} else {layer.remove();}} anim();
+        }
+        window.addEventListener('scroll', ()=>{
+            // 若烟花动画在运行，暂不触发彩带，避免叠加开销
+            if(typeof fwState!=='undefined' && fwState.running) return;
+            const st=scrollY; const dh=document.documentElement.scrollHeight-innerHeight; const pct= dh? (st/dh)*100:0;
+            milestones.forEach(m=>{ if(pct>=m && !firedMilestones.has(m)){ firedMilestones.add(m); throwConfetti(m); }});
+        });
+})();
+</script>
+        </body></html>
