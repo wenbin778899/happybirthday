@@ -19,29 +19,6 @@
         </style>
 </head>
     <body>
-      <!-- 轻量级横屏建议提示条 -->
-      <div id="landscape-tip" class="landscape-tip">
-          <div class="tip-content">
-              <div class="tip-text">
-                  <span>📱</span>
-                  <span>横屏体验更佳哦</span>
-              </div>
-              <button class="tip-close" onclick="this.parentElement.parentElement.remove(); document.body.classList.remove('tip-active');">×</button>
-          </div>
-      </div>
-      
-      <!-- 可选的旋转建议提示 (默认隐藏) -->
-      <div id="orientation-overlay" style="display: none;">
-          <div class="rotate-icon">📱</div>
-          <div class="rotate-text">横屏体验更佳</div>
-          <div class="rotate-subtitle">如需更好的视觉效果，建议旋转到横屏模式</div>
-          <button class="rotate-button" id="rotate-device-btn">
-              <span class="icon">🔄</span>
-              <span>我知道了</span>
-          </button>
-          <button class="skip-button" id="skip-rotation-btn">继续当前模式</button>
-      </div>
-      
       <audio autoplay="autopaly">
           <source src="music/love.mp3" type="audio/mp3" />
       </audio>  
@@ -78,105 +55,6 @@
         </div>
     
     <script>
-    // 移动端优化显示机制
-    (function() {
-        var orientationOverlay = document.getElementById('orientation-overlay');
-        var landscapeTip = document.getElementById('landscape-tip');
-        var isMobileDevice = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-        
-        function optimizeMobileLayout() {
-            if (!isMobileDevice) return;
-            
-            // 移动端始终隐藏旋转提示，直接优化布局
-            var overlay = document.getElementById('orientation-overlay');
-            overlay.style.display = 'none';
-            document.body.style.overflow = 'auto';
-            
-            // 应用移动端优化布局
-            document.body.classList.add('mobile-optimized');
-            
-            // 检查是否需要显示横屏建议（仅竖屏时显示一次）
-            var isPortrait = window.innerHeight > window.innerWidth;
-            var tipShown = localStorage.getItem('landscape-tip-shown');
-            
-            if (isPortrait && !tipShown && landscapeTip) {
-                setTimeout(function() {
-                    landscapeTip.classList.add('show');
-                    document.body.classList.add('tip-active');
-                    localStorage.setItem('landscape-tip-shown', 'true');
-                    
-                    // 5秒后自动隐藏提示条
-                    setTimeout(function() {
-                        if (landscapeTip.classList.contains('show')) {
-                            landscapeTip.classList.remove('show');
-                            document.body.classList.remove('tip-active');
-                        }
-                    }, 5000);
-                }, 2000); // 页面加载2秒后显示
-            }
-            
-            // 调整Canvas尺寸适配移动端
-            setTimeout(function() {
-                var canvas = document.getElementById('canvas');
-                if (canvas) {
-                    var width, height;
-                    
-                    if (isPortrait) {
-                        // 竖屏模式：使用竖向布局
-                        width = Math.min(window.innerWidth * 0.9, 350);
-                        height = Math.min(window.innerHeight * 0.4, 300);
-                    } else {
-                        // 横屏模式：使用横向布局
-                        width = Math.min(window.innerWidth * 0.6, 500);
-                        height = Math.min(window.innerHeight * 0.8, 350);
-                    }
-                    
-                    canvas.setAttribute('width', width);
-                    canvas.setAttribute('height', height);
-                    canvas.style.width = width + 'px';
-                    canvas.style.height = height + 'px';
-                }
-            }, 100);
-        }
-        
-        // 按钮事件处理（保留但简化）
-        document.getElementById('rotate-device-btn').addEventListener('click', function() {
-            document.getElementById('orientation-overlay').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            optimizeMobileLayout();
-        });
-        
-        document.getElementById('skip-rotation-btn').addEventListener('click', function() {
-            document.getElementById('orientation-overlay').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            optimizeMobileLayout();
-        });
-        
-        // 初始化：移动端直接优化布局，桌面端正常显示
-        if (isMobileDevice) {
-            optimizeMobileLayout();
-        }
-        
-        // 监听屏幕方向变化，重新优化布局
-        window.addEventListener('orientationchange', function() {
-            if (isMobileDevice) {
-                setTimeout(function() {
-                    optimizeMobileLayout();
-                    // 切换到横屏时隐藏提示条
-                    if (window.innerWidth > window.innerHeight && landscapeTip) {
-                        landscapeTip.classList.remove('show');
-                        document.body.classList.remove('tip-active');
-                    }
-                }, 200);
-            }
-        });
-        
-        window.addEventListener('resize', function() {
-            if (isMobileDevice) {
-                setTimeout(optimizeMobileLayout, 100);
-            }
-        });
-    })();
     </script>
 
     <script>
@@ -397,15 +275,10 @@
         $(window).on('resize orientationchange', function() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function() {
-                // 只在横屏模式下重新加载，避免竖屏时的不必要刷新
-                var isMobileDevice = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-                var isLandscape = window.innerWidth > window.innerHeight;
-                
-                if (isMobileDevice && isLandscape && Math.abs(window.orientation) === 90) {
-                    // 横屏模式下，重新初始化Canvas以适配新尺寸
-                    location.reload();
+                if (Math.abs(window.orientation) === 90 || window.innerWidth !== clientWidth) {
+                    location.reload(); // 简单粗暴但有效的方式
                 }
-            }, 500);
+            }, 300);
         });
         
         runAsync().start();
