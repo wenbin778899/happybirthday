@@ -212,6 +212,149 @@ body.dark .mini-slideshow .ms-controls button{background:#333;}
 body.dark .mini-slideshow .ms-controls button:hover{background:#ff6363;}
 body.dark .mini-slideshow .ms-progress{background:rgba(255,255,255,0.15);}
 
+/* ===== 强制横屏显示机制 ===== */
+/* 横屏提示遮罩 */
+#orientation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    font-family: 'Microsoft YaHei', sans-serif;
+    text-align: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#orientation-overlay .rotate-icon {
+    font-size: 80px;
+    margin-bottom: 30px;
+    animation: rotatePhone 2s ease-in-out infinite;
+}
+
+#orientation-overlay .rotate-text {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+#orientation-overlay .rotate-subtitle {
+    font-size: 16px;
+    opacity: 0.9;
+    max-width: 300px;
+    line-height: 1.5;
+}
+
+@keyframes rotatePhone {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    75% { transform: rotate(15deg); }
+}
+
+/* 移动端竖屏时强制显示旋转提示 */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+    #orientation-overlay {
+        display: flex !important;
+    }
+    
+    body > *:not(#orientation-overlay) {
+        display: none !important;
+    }
+}
+
+/* 横屏时隐藏提示，优化显示 */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+    #orientation-overlay {
+        display: none !important;
+    }
+    
+    body {
+        padding: 0;
+        margin: 0;
+        overflow-x: auto;
+    }
+    
+    #wrap {
+        width: 100%;
+        height: 100vh;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    #text {
+        position: static !important;
+        width: 35% !important;
+        height: auto !important;
+        padding: 20px !important;
+        font-size: 14px;
+    }
+    
+    #text .say {
+        font-size: 14px !important;
+        line-height: 1.4;
+        margin-bottom: 8px;
+    }
+    
+    #text h1 {
+        font-size: 20px !important;
+        margin: 10px 0;
+    }
+    
+    #text h2 {
+        font-size: 18px !important;
+        margin: 8px 0;
+    }
+    
+    #canvas {
+        width: 60% !important;
+        height: 90vh !important;
+        max-width: none !important;
+        max-height: none !important;
+        margin: 0 !important;
+    }
+    
+    /* 横屏时按钮重新定位 */
+    .memory-btn, .firework-btn, .theme-toggle, .back-to-top {
+        right: 10px;
+        font-size: 14px;
+    }
+    
+    .memory-btn {
+        bottom: 120px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    .firework-btn {
+        bottom: 170px;
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .theme-toggle {
+        bottom: 70px;
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+    
+    .back-to-top {
+        bottom: 20px;
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}
+
 /* ===== 移动端触控优化 ===== */
 /* 为所有交互元素添加触控支持 */
 .firework-btn, .memory-btn, .theme-toggle, .back-to-top, .controls button {

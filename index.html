@@ -19,6 +19,13 @@
         </style>
 </head>
     <body>
+      <!-- 强制横屏提示遮罩 -->
+      <div id="orientation-overlay">
+          <div class="rotate-icon">📱</div>
+          <div class="rotate-text">请旋转您的设备</div>
+          <div class="rotate-subtitle">为了获得最佳体验，请将设备横向放置</div>
+      </div>
+      
       <audio autoplay="autopaly">
           <source src="music/love.mp3" type="audio/mp3" />
       </audio>  
@@ -55,6 +62,65 @@
         </div>
     
     <script>
+    // 强制横屏显示机制
+    (function() {
+        var orientationOverlay = document.getElementById('orientation-overlay');
+        var isMobileDevice = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+        
+        function checkOrientation() {
+            if (!isMobileDevice) return;
+            
+            var isPortrait = window.innerHeight > window.innerWidth;
+            var overlay = document.getElementById('orientation-overlay');
+            
+            if (isPortrait) {
+                // 竖屏状态 - 显示旋转提示
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            } else {
+                // 横屏状态 - 隐藏提示，优化布局
+                overlay.style.display = 'none';
+                document.body.style.overflow = 'auto';
+                
+                // 横屏时重新调整Canvas尺寸
+                setTimeout(function() {
+                    var canvas = document.getElementById('canvas');
+                    if (canvas) {
+                        var width = Math.min(window.innerWidth * 0.6, 600);
+                        var height = Math.min(window.innerHeight * 0.9, 400);
+                        
+                        canvas.setAttribute('width', width);
+                        canvas.setAttribute('height', height);
+                        canvas.style.width = width + 'px';
+                        canvas.style.height = height + 'px';
+                    }
+                }, 100);
+            }
+        }
+        
+        // 初始检查
+        checkOrientation();
+        
+        // 监听屏幕方向变化
+        window.addEventListener('orientationchange', function() {
+            setTimeout(checkOrientation, 100); // 延迟以等待orientation更新
+        });
+        
+        window.addEventListener('resize', function() {
+            setTimeout(checkOrientation, 100);
+        });
+        
+        // 尝试启用屏幕方向锁定（仅在支持的设备上工作）
+        if (screen.orientation && screen.orientation.lock) {
+            try {
+                screen.orientation.lock('landscape').catch(function(error) {
+                    console.log('屏幕方向锁定不被支持:', error);
+                });
+            } catch(e) {
+                console.log('屏幕方向锁定功能不可用');
+            }
+        }
+    })();
     </script>
 
     <script>
@@ -275,10 +341,15 @@
         $(window).on('resize orientationchange', function() {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(function() {
-                if (Math.abs(window.orientation) === 90 || window.innerWidth !== clientWidth) {
-                    location.reload(); // 简单粗暴但有效的方式
+                // 只在横屏模式下重新加载，避免竖屏时的不必要刷新
+                var isMobileDevice = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+                var isLandscape = window.innerWidth > window.innerHeight;
+                
+                if (isMobileDevice && isLandscape && Math.abs(window.orientation) === 90) {
+                    // 横屏模式下，重新初始化Canvas以适配新尺寸
+                    location.reload();
                 }
-            }, 300);
+            }, 500);
         });
         
         runAsync().start();
