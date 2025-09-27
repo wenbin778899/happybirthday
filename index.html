@@ -19,6 +19,142 @@
         </style>
 </head>
     <body>
+      <!-- 手机横屏提示 -->
+      <div id="mobile-landscape-tip" class="mobile-tip" style="display:none;">
+          <div class="tip-content">
+              <div class="tip-icon">📱↻</div>
+              <h3>获得最佳体验</h3>
+              <p>请在<strong>浏览器</strong>中打开此页面<br>并<strong>横屏显示</strong>以获得最佳观看效果</p>
+              <div class="tip-actions">
+                  <button id="continue-anyway" class="tip-btn">继续浏览</button>
+                  <button id="copy-link" class="tip-btn-secondary">复制链接</button>
+              </div>
+          </div>
+      </div>
+      
+      <!-- 手机横屏提示JavaScript -->
+      <script>
+      // 手机横屏提示逻辑
+      (function() {
+          // 检测是否为移动设备
+          function isMobileDevice() {
+              const userAgent = navigator.userAgent.toLowerCase();
+              const mobileKeywords = ['android', 'iphone', 'ipad', 'ipod', 'blackberry', 'windows phone', 'mobile'];
+              return mobileKeywords.some(keyword => userAgent.includes(keyword)) || 
+                     window.innerWidth <= 768 || 
+                     ('ontouchstart' in window && 'orientation' in window);
+          }
+          
+          // 检测是否在应用内浏览器（如微信、QQ等）
+          function isInAppBrowser() {
+              const userAgent = navigator.userAgent.toLowerCase();
+              return /micromessenger|qq|weibo|douban/.test(userAgent);
+          }
+          
+          // 检测是否为竖屏
+          function isPortrait() {
+              return window.innerHeight > window.innerWidth;
+          }
+          
+          // 显示提示
+          function showLandscapeTip() {
+              const tip = document.getElementById('mobile-landscape-tip');
+              if (tip && (isMobileDevice() || isInAppBrowser()) && isPortrait()) {
+                  // 检查是否已经显示过（避免重复提醒）
+                  if (!sessionStorage.getItem('landscapeTipShown')) {
+                      tip.style.display = 'flex';
+                      sessionStorage.setItem('landscapeTipShown', 'true');
+                  }
+              }
+          }
+          
+          // 页面加载完成后检查
+          window.addEventListener('load', function() {
+              setTimeout(showLandscapeTip, 1000); // 延迟1秒显示，确保页面加载完成
+          });
+          
+          // 屏幕旋转时检查
+          window.addEventListener('orientationchange', function() {
+              setTimeout(function() {
+                  const tip = document.getElementById('mobile-landscape-tip');
+                  if (tip) {
+                      if (isPortrait() && (isMobileDevice() || isInAppBrowser())) {
+                          tip.style.display = 'flex';
+                      } else {
+                          tip.style.display = 'none';
+                      }
+                  }
+              }, 500); // 等待旋转动画完成
+          });
+          
+          // 按钮事件处理
+          document.addEventListener('DOMContentLoaded', function() {
+              const tip = document.getElementById('mobile-landscape-tip');
+              const continueBtn = document.getElementById('continue-anyway');
+              const copyBtn = document.getElementById('copy-link');
+              
+              // 继续浏览按钮
+              if (continueBtn) {
+                  continueBtn.addEventListener('click', function() {
+                      tip.style.display = 'none';
+                      sessionStorage.setItem('landscapeTipDismissed', 'true');
+                  });
+              }
+              
+              // 复制链接按钮
+              if (copyBtn) {
+                  copyBtn.addEventListener('click', function() {
+                      const currentUrl = window.location.href;
+                      
+                      // 尝试使用现代API复制
+                      if (navigator.clipboard && navigator.clipboard.writeText) {
+                          navigator.clipboard.writeText(currentUrl).then(function() {
+                              copyBtn.textContent = '已复制!';
+                              setTimeout(function() {
+                                  copyBtn.textContent = '复制链接';
+                              }, 2000);
+                          }).catch(function() {
+                              // 降级到传统方法
+                              fallbackCopyTextToClipboard(currentUrl);
+                          });
+                      } else {
+                          // 降级到传统方法
+                          fallbackCopyTextToClipboard(currentUrl);
+                      }
+                      
+                      function fallbackCopyTextToClipboard(text) {
+                          const textArea = document.createElement("textarea");
+                          textArea.value = text;
+                          textArea.style.position = "fixed";
+                          textArea.style.left = "-999999px";
+                          textArea.style.top = "-999999px";
+                          document.body.appendChild(textArea);
+                          textArea.focus();
+                          textArea.select();
+                          
+                          try {
+                              const successful = document.execCommand('copy');
+                              if (successful) {
+                                  copyBtn.textContent = '已复制!';
+                                  setTimeout(function() {
+                                      copyBtn.textContent = '复制链接';
+                                  }, 2000);
+                              }
+                          } catch (err) {
+                              copyBtn.textContent = '复制失败';
+                              setTimeout(function() {
+                                  copyBtn.textContent = '复制链接';
+                              }, 2000);
+                          }
+                          
+                          document.body.removeChild(textArea);
+                      }
+                  });
+              }
+          });
+      })();
+      </script>
+
       <audio autoplay="autopaly">
           <source src="music/love.mp3" type="audio/mp3" />
       </audio>  
@@ -125,68 +261,142 @@
 
         // 移动端触摸支持
         function getEventPos(e) {
+            // 支持多种触摸事件类型
             if (e.touches && e.touches.length > 0) {
                 return {
                     pageX: e.touches[0].pageX,
-                    pageY: e.touches[0].pageY
+                    pageY: e.touches[0].pageY,
+                    clientX: e.touches[0].clientX,
+                    clientY: e.touches[0].clientY
+                };
+            }
+            if (e.changedTouches && e.changedTouches.length > 0) {
+                return {
+                    pageX: e.changedTouches[0].pageX,
+                    pageY: e.changedTouches[0].pageY,
+                    clientX: e.changedTouches[0].clientX,
+                    clientY: e.changedTouches[0].clientY
                 };
             }
             return {
-                pageX: e.pageX,
-                pageY: e.pageY
+                pageX: e.pageX || e.clientX,
+                pageY: e.pageY || e.clientY,
+                clientX: e.clientX,
+                clientY: e.clientY
+            };
+        }
+        
+        function getCanvasCoordinates(e) {
+            var rect = canvas[0].getBoundingClientRect();
+            var pos = getEventPos(e);
+            
+            // 使用clientX/Y更精确
+            var x = pos.clientX - rect.left;
+            var y = pos.clientY - rect.top;
+            
+            // 适配Canvas的实际显示尺寸与内部尺寸的比例
+            var scaleX = canvas.attr('width') / rect.width;
+            var scaleY = canvas.attr('height') / rect.height;
+            
+            return {
+                x: x * scaleX,
+                y: y * scaleY
             };
         }
         
         function handleInteraction(e) {
-            var offset = canvas.offset(), x, y;
-            var pos = getEventPos(e);
-            x = pos.pageX - offset.left;
-            y = pos.pageY - offset.top;
-            
-            // 适配Canvas的实际显示尺寸
-            var canvasDisplay = {
-                width: canvas.width(),
-                height: canvas.height()
-            };
-            var canvasActual = {
-                width: canvas.attr('width'),
-                height: canvas.attr('height')
-            };
-            
-            // 坐标转换
-            x = x * (canvasActual.width / canvasDisplay.width);
-            y = y * (canvasActual.height / canvasDisplay.height);
-            
-            if (seed.hover(x, y)) {
-                hold = 0; 
-                canvas.unbind("click touchstart");
-                canvas.unbind("mousemove touchmove");
-                canvas.removeClass('hand');
+            try {
+                var coords = getCanvasCoordinates(e);
+                
+                console.log('Touch coordinates:', coords.x, coords.y); // 调试信息
+                
+                // 移动端增大点击区域
+                var hitRadius = isMobile ? 30 : 15;
+                var seedX = seed.cirle.point.x;
+                var seedY = seed.cirle.point.y;
+                
+                // 检查是否在爱心区域内
+                var distance = Math.sqrt(Math.pow(coords.x - seedX, 2) + Math.pow(coords.y - seedY, 2));
+                var isInSeed = seed.hover(coords.x, coords.y) || distance < hitRadius;
+                
+                console.log('Seed position:', seedX, seedY, 'Distance:', distance, 'Hit:', isInSeed);
+                
+                if (isInSeed) {
+                    // 添加触觉反馈
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                    
+                    hold = 0; 
+                    canvas.off("click touchstart touchend");
+                    canvas.off("mousemove touchmove");
+                    canvas.removeClass('hand');
+                    
+                    // 显示点击效果
+                    showClickEffect(coords.x, coords.y);
+                }
+            } catch (error) {
+                console.error('Touch interaction error:', error);
             }
         }
         
-        canvas.on('click touchstart', function(e) {
+        // 点击效果反馈
+        function showClickEffect(x, y) {
+            var effect = $('<div class="click-effect"></div>');
+            effect.css({
+                position: 'fixed',
+                left: x + 'px',
+                top: y + 'px',
+                width: '20px',
+                height: '20px',
+                background: 'rgba(255, 77, 77, 0.6)',
+                borderRadius: '50%',
+                pointerEvents: 'none',
+                zIndex: '9999',
+                transform: 'translate(-50%, -50%)',
+                animation: 'clickRipple 0.6s ease-out forwards'
+            });
+            
+            $('body').append(effect);
+            setTimeout(function() { effect.remove(); }, 600);
+        }
+        
+        // 事件监听 - 支持多种移动端事件
+        canvas.on('click', function(e) {
             e.preventDefault();
             handleInteraction(e);
-        }).on('mousemove touchmove', function(e){
-            var offset = canvas.offset(), x, y;
-            var pos = getEventPos(e);
-            x = pos.pageX - offset.left;
-            y = pos.pageY - offset.top;
-            
-            var canvasDisplay = {
-                width: canvas.width(),
-                height: canvas.height()
-            };
-            var canvasActual = {
-                width: canvas.attr('width'),
-                height: canvas.attr('height')
-            };
-            
-            x = x * (canvasActual.width / canvasDisplay.width);
-            y = y * (canvasActual.height / canvasDisplay.height);
-            
-            canvas.toggleClass('hand', seed.hover(x, y));
+        });
+        
+        // 移动端触摸事件
+        canvas.on('touchstart', function(e) {
+            e.preventDefault();
+            handleInteraction(e);
+        });
+        
+        canvas.on('touchend', function(e) {
+            e.preventDefault();
+            handleInteraction(e);
+        });
+        
+        // 悬停效果事件
+        canvas.on('mousemove touchmove', function(e){
+            try {
+                var coords = getCanvasCoordinates(e);
+                var hitRadius = isMobile ? 30 : 15;
+                var seedX = seed.cirle.point.x;
+                var seedY = seed.cirle.point.y;
+                var distance = Math.sqrt(Math.pow(coords.x - seedX, 2) + Math.pow(coords.y - seedY, 2));
+                var isInSeed = seed.hover(coords.x, coords.y) || distance < hitRadius;
+                
+                canvas.toggleClass('hand', isInSeed);
+                
+                // 移动端触摸反馈
+                if (isMobile && isInSeed) {
+                    canvas.css('cursor', 'pointer');
+                }
+            } catch (error) {
+                console.error('Hover effect error:', error);
+            }
         });
 
         var seedAnimate = eval(Jscex.compile("async", function () {
@@ -280,6 +490,40 @@
                 }
             }, 300);
         });
+        
+        // 移动端爱心点击提示
+        if (isMobile) {
+            setTimeout(function() {
+                var tip = $('<div class="mobile-heart-tip">💖 点击爱心开始</div>');
+                tip.css({
+                    position: 'fixed',
+                    top: '20px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'rgba(255, 77, 77, 0.9)',
+                    color: '#fff',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    zIndex: '1000',
+                    animation: 'pulse 2s infinite',
+                    boxShadow: '0 4px 12px rgba(255, 77, 77, 0.3)'
+                });
+                
+                $('body').append(tip);
+                
+                // 5秒后自动消失
+                setTimeout(function() {
+                    tip.fadeOut(500, function() { tip.remove(); });
+                }, 5000);
+                
+                // 点击后立即消失
+                canvas.one('click touchstart', function() {
+                    tip.fadeOut(300, function() { tip.remove(); });
+                });
+            }, 2000);
+        }
         
         runAsync().start();
     })();

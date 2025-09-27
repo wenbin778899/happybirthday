@@ -212,6 +212,105 @@ body.dark .mini-slideshow .ms-controls button{background:#333;}
 body.dark .mini-slideshow .ms-controls button:hover{background:#ff6363;}
 body.dark .mini-slideshow .ms-progress{background:rgba(255,255,255,0.15);}
 
+/* ===== 手机横屏提示样式 ===== */
+.mobile-tip{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.85);
+    backdrop-filter:blur(8px);
+    z-index:9999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Microsoft YaHei','PingFang SC',sans-serif;
+    animation:fadeInTip 0.6s ease;
+}
+.tip-content{
+    background:#fff;
+    padding:40px 30px;
+    border-radius:20px;
+    text-align:center;
+    max-width:320px;
+    margin:20px;
+    box-shadow:0 20px 40px rgba(0,0,0,0.3);
+    position:relative;
+}
+.tip-icon{
+    font-size:48px;
+    margin-bottom:20px;
+    animation:rotatePhone 2s ease-in-out infinite;
+}
+.tip-content h3{
+    color:#333;
+    font-size:24px;
+    margin:0 0 15px 0;
+    font-weight:700;
+}
+.tip-content p{
+    color:#666;
+    font-size:16px;
+    line-height:1.6;
+    margin:0 0 25px 0;
+}
+.tip-content strong{
+    color:#ff4d4d;
+    font-weight:600;
+}
+.tip-actions{
+    display:flex;
+    gap:12px;
+    flex-direction:column;
+}
+.tip-btn{
+    background:linear-gradient(135deg,#ff4d4d,#ff6b43);
+    color:#fff;
+    border:none;
+    padding:14px 24px;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:600;
+    cursor:pointer;
+    transition:transform 0.2s,box-shadow 0.2s;
+}
+.tip-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(255,77,77,0.4);
+}
+.tip-btn-secondary{
+    background:transparent;
+    color:#666;
+    border:2px solid #ddd;
+    padding:12px 24px;
+    border-radius:12px;
+    font-size:14px;
+    cursor:pointer;
+    transition:all 0.2s;
+}
+.tip-btn-secondary:hover{
+    border-color:#ff4d4d;
+    color:#ff4d4d;
+}
+@keyframes fadeInTip{
+    0%{opacity:0;transform:scale(0.8);}
+    100%{opacity:1;transform:scale(1);}
+}
+@keyframes rotatePhone{
+    0%,100%{transform:rotate(0deg);}
+    25%{transform:rotate(-15deg);}
+    75%{transform:rotate(15deg);}
+}
+/* 横屏时隐藏提示 */
+@media (orientation: landscape) and (max-width: 900px) {
+    .mobile-tip{display:none !important;}
+}
+/* 暗色主题适配 */
+body.dark .tip-content{
+    background:#2a2a2a;
+    color:#e5e5e5;
+}
+body.dark .tip-content h3{color:#fff;}
+body.dark .tip-content p{color:#ccc;}
+
 /* ===== 移动端触控优化 ===== */
 /* 为所有交互元素添加触控支持 */
 .firework-btn, .memory-btn, .theme-toggle, .back-to-top, .controls button {
@@ -248,6 +347,62 @@ body {
 /* 移动端按钮按压反馈 */
 .firework-btn:active, .memory-btn:active, .controls button:active {
     transition-duration: 0.1s;
+}
+
+/* Canvas交互优化 */
+#canvas {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* 点击效果动画 */
+@keyframes clickRipple {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(3);
+        opacity: 0;
+    }
+}
+
+/* 脉搏动画 */
+@keyframes pulse {
+    0%, 100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateX(-50%) scale(1.05);
+        opacity: 1;
+    }
+}
+
+/* 移动端爱心区域视觉提示 */
+@media (max-width: 768px) {
+    #canvas.hand {
+        cursor: pointer !important;
+        filter: brightness(1.1);
+    }
+    
+    /* 增加Canvas的触摸响应 */
+    #canvas {
+        position: relative;
+    }
+    
+    #canvas::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        z-index: 1;
+    }
 }
 
 /* 针对触摸设备的特殊样式 */
