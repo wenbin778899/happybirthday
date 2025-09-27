@@ -24,6 +24,11 @@
           <div class="rotate-icon">📱</div>
           <div class="rotate-text">请旋转您的设备</div>
           <div class="rotate-subtitle">为了获得最佳体验，请将设备横向放置</div>
+          <button class="rotate-button" id="rotate-device-btn">
+              <span class="icon">🔄</span>
+              <span>旋转到横屏</span>
+          </button>
+          <button class="skip-button" id="skip-rotation-btn">继续竖屏浏览</button>
       </div>
       
       <audio autoplay="autopaly">
@@ -66,9 +71,10 @@
     (function() {
         var orientationOverlay = document.getElementById('orientation-overlay');
         var isMobileDevice = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+        var forcePortraitMode = false; // 用户是否选择强制竖屏模式
         
         function checkOrientation() {
-            if (!isMobileDevice) return;
+            if (!isMobileDevice || forcePortraitMode) return;
             
             var isPortrait = window.innerHeight > window.innerWidth;
             var overlay = document.getElementById('orientation-overlay');
@@ -98,6 +104,90 @@
             }
         }
         
+        // 按钮事件处理
+        document.getElementById('rotate-device-btn').addEventListener('click', function() {
+            var button = this;
+            var icon = button.querySelector('.icon');
+            var text = button.querySelector('span:last-child');
+            
+            // 按钮反馈动画
+            button.style.transform = 'scale(0.95)';
+            icon.style.animation = 'rotateIcon 0.6s ease-in-out';
+            
+            setTimeout(function() {
+                button.style.transform = '';
+            }, 150);
+            
+            // 尝试锁定屏幕方向
+            if (screen.orientation && screen.orientation.lock) {
+                screen.orientation.lock('landscape').then(function() {
+                    text.textContent = '横屏已锁定';
+                    setTimeout(function() {
+                        checkOrientation();
+                    }, 1000);
+                }).catch(function(error) {
+                    // 如果锁定失败，显示提示
+                    showRotationHint();
+                });
+            } else {
+                showRotationHint();
+            }
+        });
+        
+        document.getElementById('skip-rotation-btn').addEventListener('click', function() {
+            forcePortraitMode = true;
+            document.getElementById('orientation-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            
+            // 显示一个临时提示
+            showToast('已切换到竖屏模式，如需更好体验请旋转设备');
+        });
+        
+        function showRotationHint() {
+            var rotateBtn = document.getElementById('rotate-device-btn');
+            var originalText = rotateBtn.querySelector('span:last-child').textContent;
+            
+            rotateBtn.querySelector('span:last-child').textContent = '请手动旋转设备';
+            rotateBtn.style.background = 'rgba(255,215,0,0.3)';
+            
+            setTimeout(function() {
+                rotateBtn.querySelector('span:last-child').textContent = originalText;
+                rotateBtn.style.background = '';
+            }, 3000);
+        }
+        
+        function showToast(message) {
+            var toast = document.createElement('div');
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0,0,0,0.8);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 25px;
+                font-size: 14px;
+                z-index: 10000;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(function() {
+                toast.style.opacity = '1';
+            }, 100);
+            
+            setTimeout(function() {
+                toast.style.opacity = '0';
+                setTimeout(function() {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+        
         // 初始检查
         checkOrientation();
         
@@ -113,9 +203,8 @@
         // 尝试启用屏幕方向锁定（仅在支持的设备上工作）
         if (screen.orientation && screen.orientation.lock) {
             try {
-                screen.orientation.lock('landscape').catch(function(error) {
-                    console.log('屏幕方向锁定不被支持:', error);
-                });
+                // 不在页面加载时自动锁定，让用户主动选择
+                console.log('屏幕方向锁定功能可用');
             } catch(e) {
                 console.log('屏幕方向锁定功能不可用');
             }

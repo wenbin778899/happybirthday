@@ -251,12 +251,68 @@ body.dark .mini-slideshow .ms-progress{background:rgba(255,255,255,0.15);}
     opacity: 0.9;
     max-width: 300px;
     line-height: 1.5;
+    margin-bottom: 40px;
+}
+
+/* 旋转按钮样式 */
+#orientation-overlay .rotate-button {
+    background: rgba(255,255,255,0.2);
+    border: 2px solid rgba(255,255,255,0.5);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+#orientation-overlay .rotate-button:hover,
+#orientation-overlay .rotate-button:active {
+    background: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+#orientation-overlay .rotate-button .icon {
+    font-size: 20px;
+    animation: rotateIcon 1.5s ease-in-out infinite;
+}
+
+#orientation-overlay .skip-button {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.8);
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+#orientation-overlay .skip-button:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.5);
 }
 
 @keyframes rotatePhone {
     0%, 100% { transform: rotate(0deg); }
     25% { transform: rotate(-15deg); }
     75% { transform: rotate(15deg); }
+}
+
+@keyframes rotateIcon {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(90deg); }
 }
 
 /* 移动端竖屏时强制显示旋转提示 */
