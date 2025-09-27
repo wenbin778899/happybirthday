@@ -159,14 +159,27 @@
           });
       })();
       
-      // 音频自动播放处理
-      (function() {
+      // 音频自动播放处理 - 等待DOM加载完成
+      document.addEventListener('DOMContentLoaded', function() {
           const audio = document.getElementById('bgMusic');
           const musicBtn = document.getElementById('music-toggle');
           let isPlaying = false;
           let userInteracted = false;
           
-          if (!audio || !musicBtn) return;
+          // 添加调试信息
+          console.log('Audio element:', audio);
+          console.log('Music button:', musicBtn);
+          console.log('Audio src:', audio ? audio.src : 'No audio element');
+          
+          if (!audio || !musicBtn) {
+              console.error('Audio element or music button not found!');
+              return;
+          }
+          
+          // 检查音频文件是否能加载
+          audio.addEventListener('loadstart', () => console.log('开始加载音频'));
+          audio.addEventListener('canplay', () => console.log('音频可以播放'));
+          audio.addEventListener('error', (e) => console.error('音频加载错误:', e));
           
           // 尝试自动播放（可能被浏览器阻止）
           function tryAutoPlay() {
@@ -200,21 +213,48 @@
           }
           
           // 音乐按钮点击事件
-          musicBtn.addEventListener('click', function() {
+          musicBtn.addEventListener('click', function(e) {
+              e.preventDefault();
               userInteracted = true;
               
-              if (isPlaying) {
+              console.log('Music button clicked, current state:', isPlaying);
+              console.log('Audio paused state:', audio.paused);
+              console.log('Audio ready state:', audio.readyState);
+              
+              if (isPlaying || !audio.paused) {
                   audio.pause();
                   isPlaying = false;
+                  console.log('音乐已暂停');
               } else {
-                  const playPromise = audio.play();
-                  if (playPromise !== undefined) {
-                      playPromise.then(() => {
-                          isPlaying = true;
-                      }).catch(error => {
-                          console.log('播放失败:', error);
-                          isPlaying = false;
-                      });
+                  // 确保音频已加载
+                  if (audio.readyState >= 2) { // HAVE_CURRENT_DATA
+                      const playPromise = audio.play();
+                      if (playPromise !== undefined) {
+                          playPromise.then(() => {
+                              isPlaying = true;
+                              console.log('音乐开始播放');
+                          }).catch(error => {
+                              console.error('播放失败:', error);
+                              isPlaying = false;
+                              // 尝试用户手动触发
+                              alert('音频播放被阻止，请确保允许此网站播放音频');
+                          });
+                      }
+                  } else {
+                      console.log('音频尚未加载完成，等待加载...');
+                      audio.load(); // 重新加载音频
+                      audio.addEventListener('canplay', function() {
+                          const playPromise = audio.play();
+                          if (playPromise !== undefined) {
+                              playPromise.then(() => {
+                                  isPlaying = true;
+                                  console.log('音乐开始播放（延迟）');
+                              }).catch(error => {
+                                  console.error('延迟播放失败:', error);
+                                  isPlaying = false;
+                              });
+                          }
+                      }, { once: true });
                   }
               }
               updateMusicButton();
@@ -224,16 +264,19 @@
           audio.addEventListener('play', () => {
               isPlaying = true;
               updateMusicButton();
+              console.log('音频播放事件触发');
           });
           
           audio.addEventListener('pause', () => {
               isPlaying = false;
               updateMusicButton();
+              console.log('音频暂停事件触发');
           });
           
           audio.addEventListener('ended', () => {
               isPlaying = false;
               updateMusicButton();
+              console.log('音频播放结束');
           });
           
           // 监听用户交互事件，尝试启动音频
@@ -242,7 +285,7 @@
               userInteracted = true;
               // 延迟尝试播放，避免干扰其他交互
               setTimeout(() => {
-                  if (!isPlaying) {
+                  if (!isPlaying && audio.paused) {
                       tryAutoPlay();
                   }
               }, 1000);
@@ -259,7 +302,10 @@
           
           // 初始化按钮状态
           updateMusicButton();
-      })();
+          
+          // 预加载音频
+          audio.load();
+      });
       </script>
 
       <audio id="bgMusic" preload="auto" loop>
