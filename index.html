@@ -19,16 +19,27 @@
         </style>
 </head>
     <body>
-      <!-- 强制横屏提示遮罩 -->
-      <div id="orientation-overlay">
+      <!-- 轻量级横屏建议提示条 -->
+      <div id="landscape-tip" class="landscape-tip">
+          <div class="tip-content">
+              <div class="tip-text">
+                  <span>📱</span>
+                  <span>横屏体验更佳哦</span>
+              </div>
+              <button class="tip-close" onclick="this.parentElement.parentElement.remove(); document.body.classList.remove('tip-active');">×</button>
+          </div>
+      </div>
+      
+      <!-- 可选的旋转建议提示 (默认隐藏) -->
+      <div id="orientation-overlay" style="display: none;">
           <div class="rotate-icon">📱</div>
-          <div class="rotate-text">请旋转您的设备</div>
-          <div class="rotate-subtitle">为了获得最佳体验，请将设备横向放置</div>
+          <div class="rotate-text">横屏体验更佳</div>
+          <div class="rotate-subtitle">如需更好的视觉效果，建议旋转到横屏模式</div>
           <button class="rotate-button" id="rotate-device-btn">
               <span class="icon">🔄</span>
-              <span>旋转到横屏</span>
+              <span>我知道了</span>
           </button>
-          <button class="skip-button" id="skip-rotation-btn">继续竖屏浏览</button>
+          <button class="skip-button" id="skip-rotation-btn">继续当前模式</button>
       </div>
       
       <audio autoplay="autopaly">
@@ -67,148 +78,104 @@
         </div>
     
     <script>
-    // 强制横屏显示机制
+    // 移动端优化显示机制
     (function() {
         var orientationOverlay = document.getElementById('orientation-overlay');
+        var landscapeTip = document.getElementById('landscape-tip');
         var isMobileDevice = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-        var forcePortraitMode = false; // 用户是否选择强制竖屏模式
         
-        function checkOrientation() {
-            if (!isMobileDevice || forcePortraitMode) return;
+        function optimizeMobileLayout() {
+            if (!isMobileDevice) return;
             
-            var isPortrait = window.innerHeight > window.innerWidth;
+            // 移动端始终隐藏旋转提示，直接优化布局
             var overlay = document.getElementById('orientation-overlay');
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
             
-            if (isPortrait) {
-                // 竖屏状态 - 显示旋转提示
-                overlay.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-            } else {
-                // 横屏状态 - 隐藏提示，优化布局
-                overlay.style.display = 'none';
-                document.body.style.overflow = 'auto';
-                
-                // 横屏时重新调整Canvas尺寸
+            // 应用移动端优化布局
+            document.body.classList.add('mobile-optimized');
+            
+            // 检查是否需要显示横屏建议（仅竖屏时显示一次）
+            var isPortrait = window.innerHeight > window.innerWidth;
+            var tipShown = localStorage.getItem('landscape-tip-shown');
+            
+            if (isPortrait && !tipShown && landscapeTip) {
                 setTimeout(function() {
-                    var canvas = document.getElementById('canvas');
-                    if (canvas) {
-                        var width = Math.min(window.innerWidth * 0.6, 600);
-                        var height = Math.min(window.innerHeight * 0.9, 400);
-                        
-                        canvas.setAttribute('width', width);
-                        canvas.setAttribute('height', height);
-                        canvas.style.width = width + 'px';
-                        canvas.style.height = height + 'px';
-                    }
-                }, 100);
+                    landscapeTip.classList.add('show');
+                    document.body.classList.add('tip-active');
+                    localStorage.setItem('landscape-tip-shown', 'true');
+                    
+                    // 5秒后自动隐藏提示条
+                    setTimeout(function() {
+                        if (landscapeTip.classList.contains('show')) {
+                            landscapeTip.classList.remove('show');
+                            document.body.classList.remove('tip-active');
+                        }
+                    }, 5000);
+                }, 2000); // 页面加载2秒后显示
             }
+            
+            // 调整Canvas尺寸适配移动端
+            setTimeout(function() {
+                var canvas = document.getElementById('canvas');
+                if (canvas) {
+                    var width, height;
+                    
+                    if (isPortrait) {
+                        // 竖屏模式：使用竖向布局
+                        width = Math.min(window.innerWidth * 0.9, 350);
+                        height = Math.min(window.innerHeight * 0.4, 300);
+                    } else {
+                        // 横屏模式：使用横向布局
+                        width = Math.min(window.innerWidth * 0.6, 500);
+                        height = Math.min(window.innerHeight * 0.8, 350);
+                    }
+                    
+                    canvas.setAttribute('width', width);
+                    canvas.setAttribute('height', height);
+                    canvas.style.width = width + 'px';
+                    canvas.style.height = height + 'px';
+                }
+            }, 100);
         }
         
-        // 按钮事件处理
+        // 按钮事件处理（保留但简化）
         document.getElementById('rotate-device-btn').addEventListener('click', function() {
-            var button = this;
-            var icon = button.querySelector('.icon');
-            var text = button.querySelector('span:last-child');
-            
-            // 按钮反馈动画
-            button.style.transform = 'scale(0.95)';
-            icon.style.animation = 'rotateIcon 0.6s ease-in-out';
-            
-            setTimeout(function() {
-                button.style.transform = '';
-            }, 150);
-            
-            // 尝试锁定屏幕方向
-            if (screen.orientation && screen.orientation.lock) {
-                screen.orientation.lock('landscape').then(function() {
-                    text.textContent = '横屏已锁定';
-                    setTimeout(function() {
-                        checkOrientation();
-                    }, 1000);
-                }).catch(function(error) {
-                    // 如果锁定失败，显示提示
-                    showRotationHint();
-                });
-            } else {
-                showRotationHint();
-            }
+            document.getElementById('orientation-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            optimizeMobileLayout();
         });
         
         document.getElementById('skip-rotation-btn').addEventListener('click', function() {
-            forcePortraitMode = true;
             document.getElementById('orientation-overlay').style.display = 'none';
             document.body.style.overflow = 'auto';
-            
-            // 显示一个临时提示
-            showToast('已切换到竖屏模式，如需更好体验请旋转设备');
+            optimizeMobileLayout();
         });
         
-        function showRotationHint() {
-            var rotateBtn = document.getElementById('rotate-device-btn');
-            var originalText = rotateBtn.querySelector('span:last-child').textContent;
-            
-            rotateBtn.querySelector('span:last-child').textContent = '请手动旋转设备';
-            rotateBtn.style.background = 'rgba(255,215,0,0.3)';
-            
-            setTimeout(function() {
-                rotateBtn.querySelector('span:last-child').textContent = originalText;
-                rotateBtn.style.background = '';
-            }, 3000);
+        // 初始化：移动端直接优化布局，桌面端正常显示
+        if (isMobileDevice) {
+            optimizeMobileLayout();
         }
         
-        function showToast(message) {
-            var toast = document.createElement('div');
-            toast.textContent = message;
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: rgba(0,0,0,0.8);
-                color: white;
-                padding: 12px 20px;
-                border-radius: 25px;
-                font-size: 14px;
-                z-index: 10000;
-                opacity: 0;
-                transition: opacity 0.3s ease;
-            `;
-            
-            document.body.appendChild(toast);
-            
-            setTimeout(function() {
-                toast.style.opacity = '1';
-            }, 100);
-            
-            setTimeout(function() {
-                toast.style.opacity = '0';
-                setTimeout(function() {
-                    document.body.removeChild(toast);
-                }, 300);
-            }, 3000);
-        }
-        
-        // 初始检查
-        checkOrientation();
-        
-        // 监听屏幕方向变化
+        // 监听屏幕方向变化，重新优化布局
         window.addEventListener('orientationchange', function() {
-            setTimeout(checkOrientation, 100); // 延迟以等待orientation更新
+            if (isMobileDevice) {
+                setTimeout(function() {
+                    optimizeMobileLayout();
+                    // 切换到横屏时隐藏提示条
+                    if (window.innerWidth > window.innerHeight && landscapeTip) {
+                        landscapeTip.classList.remove('show');
+                        document.body.classList.remove('tip-active');
+                    }
+                }, 200);
+            }
         });
         
         window.addEventListener('resize', function() {
-            setTimeout(checkOrientation, 100);
-        });
-        
-        // 尝试启用屏幕方向锁定（仅在支持的设备上工作）
-        if (screen.orientation && screen.orientation.lock) {
-            try {
-                // 不在页面加载时自动锁定，让用户主动选择
-                console.log('屏幕方向锁定功能可用');
-            } catch(e) {
-                console.log('屏幕方向锁定功能不可用');
+            if (isMobileDevice) {
+                setTimeout(optimizeMobileLayout, 100);
             }
-        }
+        });
     })();
     </script>
 

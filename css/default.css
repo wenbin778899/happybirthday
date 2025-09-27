@@ -315,7 +315,8 @@ body.dark .mini-slideshow .ms-progress{background:rgba(255,255,255,0.15);}
     50% { transform: rotate(90deg); }
 }
 
-/* 移动端竖屏时强制显示旋转提示 */
+/* 移动端竖屏时强制显示旋转提示 - 已禁用 */
+/*
 @media screen and (max-width: 768px) and (orientation: portrait) {
     #orientation-overlay {
         display: flex !important;
@@ -324,6 +325,202 @@ body.dark .mini-slideshow .ms-progress{background:rgba(255,255,255,0.15);}
     body > *:not(#orientation-overlay) {
         display: none !important;
     }
+}
+*/
+
+/* 移动端优化布局 - 适用于所有方向 */
+.mobile-optimized #wrap {
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.mobile-optimized #text {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    max-width: 500px;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+    margin-bottom: 20px;
+    order: 1;
+}
+
+.mobile-optimized #text .say {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.mobile-optimized #text h1 {
+    font-size: 22px;
+    margin: 15px 0;
+}
+
+.mobile-optimized #text h2 {
+    font-size: 20px;
+    margin: 12px 0;
+}
+
+.mobile-optimized #canvas {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 400px !important;
+    display: block !important;
+    margin: 0 auto !important;
+    order: 2;
+}
+
+/* 横屏时的优化布局 */
+@media screen and (max-width: 768px) and (orientation: landscape) {
+    .mobile-optimized #wrap {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 15px;
+        min-height: 100vh;
+    }
+    
+    .mobile-optimized #text {
+        width: 45% !important;
+        max-width: none;
+        padding: 15px;
+        margin-bottom: 0;
+        margin-right: 15px;
+        order: 1;
+        font-size: 14px;
+    }
+    
+    .mobile-optimized #text .say {
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 10px;
+    }
+    
+    .mobile-optimized #text h1 {
+        font-size: 18px;
+        margin: 10px 0;
+    }
+    
+    .mobile-optimized #text h2 {
+        font-size: 16px;
+        margin: 8px 0;
+    }
+    
+    .mobile-optimized #canvas {
+        width: 50% !important;
+        max-width: none !important;
+        height: 85vh !important;
+        max-height: none !important;
+        order: 2;
+        margin: 0 !important;
+    }
+}
+
+/* 移动端按钮优化定位 */
+.mobile-optimized .memory-btn,
+.mobile-optimized .firework-btn,
+.mobile-optimized .theme-toggle,
+.mobile-optimized .back-to-top {
+    position: fixed;
+    right: 15px;
+    z-index: 1000;
+}
+
+.mobile-optimized .memory-btn {
+    bottom: 140px;
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+}
+
+.mobile-optimized .firework-btn {
+    bottom: 200px;
+    padding: 12px 16px;
+    font-size: 16px;
+}
+
+.mobile-optimized .theme-toggle {
+    bottom: 90px;
+    padding: 8px 14px;
+    font-size: 14px;
+}
+
+.mobile-optimized .back-to-top {
+    bottom: 40px;
+    padding: 10px 14px;
+    font-size: 16px;
+}
+
+/* 轻量级横屏建议提示条 */
+.landscape-tip {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    color: white;
+    padding: 8px 15px;
+    font-size: 13px;
+    text-align: center;
+    z-index: 1001;
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.landscape-tip.show {
+    transform: translateY(0);
+}
+
+.landscape-tip .tip-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.landscape-tip .tip-text {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.landscape-tip .tip-close {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.landscape-tip .tip-close:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* 当提示条显示时，为页面内容留出空间 */
+body.tip-active {
+    padding-top: 40px;
+}
+
+body.tip-active.mobile-optimized #wrap {
+    min-height: calc(100vh - 40px);
 }
 
 /* 横屏时隐藏提示，优化显示 */
