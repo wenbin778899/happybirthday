@@ -461,20 +461,13 @@
         
         function handleInteraction(e) {
             try {
-                var coords = getCanvasCoordinates(e);
-                
-                console.log('Touch coordinates:', coords.x, coords.y, 'Seed position:', seedX, seedY, 'Distance:', distance); // 调试信息
-                
-                // 显示调试信息（开发时使用）
-                if (isMobile && window.location.hash === '#debug') {
-                    var debugInfo = document.getElementById('debug-info') || document.createElement('div');
-                    debugInfo.id = 'debug-info';
-                    debugInfo.style.cssText = 'position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.8);color:white;padding:10px;font-size:12px;z-index:10000;';
-                    debugInfo.innerHTML = `Touch: (${Math.round(coords.x)}, ${Math.round(coords.y)})<br>Seed: (${Math.round(seedX)}, ${Math.round(seedY)})<br>Distance: ${Math.round(distance)}<br>Radius: ${hitRadius}<br>Canvas: ${canvas.attr('width')}x${canvas.attr('height')}`;
-                    if (!document.getElementById('debug-info')) {
-                        document.body.appendChild(debugInfo);
-                    }
+                // 确保seed已经初始化
+                if (!seed || !seed.cirle || !seed.cirle.point) {
+                    console.log('Seed not initialized yet');
+                    return;
                 }
+                
+                var coords = getCanvasCoordinates(e);
                 
                 // 移动端增大点击区域
                 var hitRadius = isMobile ? 30 : 15;
@@ -485,24 +478,43 @@
                 var distance = Math.sqrt(Math.pow(coords.x - seedX, 2) + Math.pow(coords.y - seedY, 2));
                 var isInSeed = seed.hover(coords.x, coords.y) || distance < hitRadius;
                 
-                console.log('Seed position:', seedX, seedY, 'Distance:', distance, 'Hit:', isInSeed);
+                console.log('Touch coordinates:', coords.x, coords.y, 'Seed position:', seedX, seedY, 'Distance:', distance, 'Hit:', isInSeed); // 调试信息
+                
+                // 显示调试信息（开发时使用）
+                if (isMobile && window.location.hash === '#debug') {
+                    var debugInfo = document.getElementById('debug-info') || document.createElement('div');
+                    debugInfo.id = 'debug-info';
+                    debugInfo.style.cssText = 'position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.8);color:white;padding:10px;font-size:12px;z-index:10000;';
+                    debugInfo.innerHTML = `Touch: (${Math.round(coords.x)}, ${Math.round(coords.y)})<br>Seed: (${Math.round(seedX)}, ${Math.round(seedY)})<br>Distance: ${Math.round(distance)}<br>Radius: ${hitRadius}<br>Canvas: ${canvas.attr('width')}x${canvas.attr('height')}<br>Hit: ${isInSeed}`;
+                    if (!document.getElementById('debug-info')) {
+                        document.body.appendChild(debugInfo);
+                    }
+                }
                 
                 if (isInSeed) {
+                    console.log('Heart clicked! Triggering animation...');
+                    
                     // 添加触觉反馈
                     if (navigator.vibrate) {
                         navigator.vibrate(50);
                     }
                     
+                    // 停止等待，开始动画
                     hold = 0; 
                     canvas.off("click touchstart touchend");
                     canvas.off("mousemove touchmove");
                     canvas.removeClass('hand');
                     
                     // 显示点击效果
-                    showClickEffect(coords.x, coords.y);
+                    showClickEffect(coords.x / (canvas.attr('width') / canvas.width()), coords.y / (canvas.attr('height') / canvas.height()));
+                    
+                    return true; // 表示成功触发
                 }
+                
+                return false;
             } catch (error) {
                 console.error('Touch interaction error:', error);
+                return false;
             }
         }
         
@@ -527,43 +539,63 @@
             setTimeout(function() { effect.remove(); }, 600);
         }
         
-        // 事件监听 - 支持多种移动端事件
-        canvas.on('click', function(e) {
-            e.preventDefault();
-            handleInteraction(e);
-        });
-        
-        // 移动端触摸事件
-        canvas.on('touchstart', function(e) {
-            e.preventDefault();
-            handleInteraction(e);
-        });
-        
-        canvas.on('touchend', function(e) {
-            e.preventDefault();
-            handleInteraction(e);
-        });
-        
-        // 悬停效果事件
-        canvas.on('mousemove touchmove', function(e){
-            try {
-                var coords = getCanvasCoordinates(e);
-                var hitRadius = isMobile ? 30 : 15;
-                var seedX = seed.cirle.point.x;
-                var seedY = seed.cirle.point.y;
-                var distance = Math.sqrt(Math.pow(coords.x - seedX, 2) + Math.pow(coords.y - seedY, 2));
-                var isInSeed = seed.hover(coords.x, coords.y) || distance < hitRadius;
+        // 统一的事件处理器 - 支持桌面和移动端
+        function bindCanvasEvents() {
+            // 移除旧的事件监听器
+            canvas.off('click touchstart touchend mousemove touchmove');
+            
+            // 点击/触摸事件 - 优先使用touchstart（移动端）
+            if (isMobile) {
+                canvas.on('touchstart', function(e) {
+                    e.preventDefault();
+                    var result = handleInteraction(e);
+                    if (result) {
+                        console.log('Mobile touch successfully triggered heart animation');
+                    }
+                });
                 
-                canvas.toggleClass('hand', isInSeed);
-                
-                // 移动端触摸反馈
-                if (isMobile && isInSeed) {
-                    canvas.css('cursor', 'pointer');
-                }
-            } catch (error) {
-                console.error('Hover effect error:', error);
+                // 备用：touchend也绑定（有些设备touchstart可能不够敏感）
+                canvas.on('touchend', function(e) {
+                    e.preventDefault();
+                    if (hold === 1) { // 只有在还未触发时才处理
+                        handleInteraction(e);
+                    }
+                });
+            } else {
+                canvas.on('click', function(e) {
+                    e.preventDefault();
+                    handleInteraction(e);
+                });
             }
-        });
+            
+            // 悬停效果事件
+            canvas.on('mousemove touchmove', function(e){
+                try {
+                    if (!seed || !seed.cirle || !seed.cirle.point) {
+                        return;
+                    }
+                    
+                    var coords = getCanvasCoordinates(e);
+                    var hitRadius = isMobile ? 30 : 15;
+                    var seedX = seed.cirle.point.x;
+                    var seedY = seed.cirle.point.y;
+                    var distance = Math.sqrt(Math.pow(coords.x - seedX, 2) + Math.pow(coords.y - seedY, 2));
+                    var isInSeed = seed.hover(coords.x, coords.y) || distance < hitRadius;
+                    
+                    canvas.toggleClass('hand', isInSeed);
+                    
+                    // 移动端触摸反馈
+                    if (isMobile && isInSeed) {
+                        canvas.css('cursor', 'pointer');
+                    }
+                } catch (error) {
+                    console.error('Hover event error:', error);
+                }
+            });
+        }
+        
+        // 初始绑定事件
+        bindCanvasEvents();
 
         var seedAnimate = eval(Jscex.compile("async", function () {
             seed.draw();
@@ -678,24 +710,7 @@
                 canvas.off('click touchstart mousemove touchmove');
                 
                 // 重新绑定触摸和点击事件
-                canvas.on('click touchstart', function(e) {
-                    e.preventDefault();
-                    handleInteraction(e);
-                }).on('mousemove touchmove', function(e){
-                    var offset = canvas.offset(), x, y;
-                    var pos = getEventPos(e);
-                    x = pos.pageX - offset.left;
-                    y = pos.pageY - offset.top;
-                    
-                    var rect = canvas[0].getBoundingClientRect();
-                    var scaleX = canvas.attr('width') / rect.width;
-                    var scaleY = canvas.attr('height') / rect.height;
-                    
-                    x *= scaleX;
-                    y *= scaleY;
-                    
-                    canvas.toggleClass('hand', seed.hover(x, y));
-                });
+                bindCanvasEvents();
                 
                 // 更新记录的状态
                 lastOrientation = currentOrientation;
