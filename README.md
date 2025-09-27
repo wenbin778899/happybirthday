@@ -2,7 +2,7 @@
 
 一个充满创意和温情的生日祝福网页，结合了动画爱心树、烟花特效、照片轮播等多种互动元素，为特殊的人送上最真挚的生日祝福。
 
-[![GitHub Pages](https://img.shields.io/badge/demo-GitHub%20Pages-brightgreen)](https://your-username.github.io/happybirthday)
+[![GitHub Pages](https://img.shields.io/badge/demo-GitHub%20Pages-brightgreen)](https://wenbin778899.github.io/happybirthday)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)](https://www.w3.org/html/)
 [![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)](https://www.w3.org/CSS/)
@@ -39,7 +39,7 @@
 
 ## 🚀 在线演示
 
-[查看在线演示](https://your-username.github.io/happybirthday) *(请替换为你的GitHub Pages链接)*
+[查看在线演示](https://wenbin778899.github.io/happybirthday)
 
 ## 📁 项目结构
 
@@ -73,7 +73,7 @@ happybirthday/
 
 1. **克隆项目**
 ```bash
-git clone https://github.com/your-username/happybirthday.git
+git clone https://github.com/wenbin778899/happybirthday.git
 cd happybirthday
 ```
 
@@ -109,7 +109,7 @@ http://localhost:8000
 3. 选择Source为 "Deploy from a branch"
 4. 选择Branch为 "main" 或 "master"
 5. 点击Save，等待部署完成
-6. 访问 `https://your-username.github.io/happybirthday`
+6. 访问 `https://wenbin778899.github.io/happybirthday`
 
 ### 手动部署
 1. 将项目上传到GitHub仓库的gh-pages分支
@@ -209,7 +209,7 @@ const FW = {
 
 如果这个项目对你有帮助，请给它一个Star！
 
-[![Star History Chart](https://api.star-history.com/svg?repos=your-username/happybirthday&type=Date)](https://github.com/your-username/happybirthday/stargazers)
+[![Star History Chart](https://api.star-history.com/svg?repos=wenbin778899/happybirthday&type=Date)](https://github.com/wenbin778899/happybirthday/stargazers)
 
 ---
 
@@ -217,7 +217,7 @@ const FW = {
 
 **用代码传递温暖，用技术承载友情** ❤️
 
-Made with ❤️ by [Your Name](https://github.com/your-username)
+Made with ❤️ by [wenbin778899](https://github.com/wenbin778899)
 
 [🔝 返回顶部](#-兄弟生日快乐---interactive-birthday-webpage)
 
