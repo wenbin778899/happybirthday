@@ -80,7 +80,8 @@ button, .memory-btn, .firework-btn, .theme-toggle, .back-to-top {
 	
 	/* 调整按钮位置避免重叠 */
 	.memory-btn{right:20px;bottom:140px;width:56px;height:56px;font-size:22px;}
-	.firework-btn{right:20px;bottom:200px;padding:14px 18px;font-size:18px;}
+	.music-btn{right:20px;bottom:210px;width:56px;height:56px;font-size:22px;}
+	.firework-btn{right:20px;bottom:280px;padding:14px 18px;font-size:18px;}
 	.theme-toggle{right:20px;bottom:80px;padding:10px 16px;font-size:16px;}
 }
 
@@ -105,7 +106,8 @@ button, .memory-btn, .firework-btn, .theme-toggle, .back-to-top {
 	
 	/* 移动端按钮优化 */
 	.memory-btn{width:60px;height:60px;font-size:24px;right:15px;bottom:120px;box-shadow:0 4px 12px rgba(255,135,67,0.6);}
-	.firework-btn{right:15px;bottom:190px;padding:16px 20px;font-size:16px;border-radius:16px;}
+	.music-btn{width:60px;height:60px;font-size:24px;right:15px;bottom:190px;box-shadow:0 4px 12px rgba(76,175,80,0.6);}
+	.firework-btn{right:15px;bottom:260px;padding:16px 20px;font-size:16px;border-radius:16px;}
 	.theme-toggle{right:15px;bottom:60px;padding:12px 18px;border-radius:20px;}
 	.back-to-top{right:15px;bottom:10px;padding:12px 16px;}
 	
@@ -165,6 +167,14 @@ button, .memory-btn, .firework-btn, .theme-toggle, .back-to-top {
 /* 烟花按钮 */
 .firework-btn{position:fixed;right:22px;bottom:200px;background:#ff9f43;color:#fff;border:none;padding:12px 16px;font-size:16px;border-radius:14px;cursor:pointer;z-index:997;box-shadow:0 8px 18px rgba(0,0,0,0.2);transition:transform .25s,box-shadow .25s,background .25s;}
 .firework-btn:hover{transform:translateY(-5px) scale(1.05);box-shadow:0 8px 24px rgba(0,0,0,0.3);background:#ff7f29;}
+
+/* 音乐控制按钮 */
+.music-btn{position:fixed;right:22px;bottom:250px;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#4CAF50,#45a049);color:#ffffff;border:2px solid rgba(255,255,255,0.2);font-size:20px;cursor:pointer;z-index:998;box-shadow:0 8px 18px rgba(76,175,80,0.4), inset 0 2px 0 rgba(255,255,255,0.3);transition:transform .25s,background .25s,box-shadow .25s;}
+.music-btn:hover{transform:translateY(-3px) scale(1.03);background:linear-gradient(145deg,#45a049,#388e3c);box-shadow:0 12px 24px rgba(76,175,80,0.5), inset 0 2px 0 rgba(255,255,255,0.4);} 
+.music-btn:active{transform:translateY(-1px) scale(1.01);box-shadow:0 6px 14px rgba(76,175,80,0.3), inset 0 2px 0 rgba(255,255,255,0.3);} 
+.music-btn.playing{background:linear-gradient(145deg,#FF5722,#e64a19);box-shadow:0 8px 18px rgba(255,87,34,0.4), inset 0 2px 0 rgba(255,255,255,0.3);}
+.music-btn.playing:hover{background:linear-gradient(145deg,#e64a19,#d84315);box-shadow:0 12px 24px rgba(255,87,34,0.5), inset 0 2px 0 rgba(255,255,255,0.4);}
+
 .firework-canvas{position:fixed;inset:0;pointer-events:none;z-index:1500;}
 /* 记忆按钮（右下角圆形） */
 .memory-btn{position:fixed;right:22px;bottom:150px;width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#ff9f43,#ff7e29);color:#ffffff;border:2px solid rgba(255,255,255,0.2);font-size:20px;cursor:pointer;z-index:998;box-shadow:0 8px 18px rgba(255,135,67,0.4), inset 0 2px 0 rgba(255,255,255,0.3);transition:transform .25s,background .25s,box-shadow .25s;}
@@ -187,6 +197,10 @@ body.dark .slideshow{background:rgba(20,20,20,0.8);border-color:#333;}
 body.dark .slideshow .slide-title, body.dark #slide-caption{color:#e8e8e8;}
 body.dark .memory-btn{background:linear-gradient(145deg,#ff6b43,#ff4d29);border-color:rgba(255,255,255,0.15);}
 body.dark .memory-btn:hover{background:linear-gradient(145deg,#ff5529,#ff3300);}
+body.dark .music-btn{background:linear-gradient(145deg,#66BB6A,#4CAF50);border-color:rgba(255,255,255,0.15);}
+body.dark .music-btn:hover{background:linear-gradient(145deg,#4CAF50,#388E3C);}
+body.dark .music-btn.playing{background:linear-gradient(145deg,#FF7043,#FF5722);}
+body.dark .music-btn.playing:hover{background:linear-gradient(145deg,#FF5722,#E64A19);}
 
 /* === Mini Slideshow Component === */
 .mini-slideshow{position:fixed;right:30px;bottom:30px;width:360px;max-width:92vw;background:rgba(255,255,255,0.95);backdrop-filter:blur(6px);border:2px solid rgba(0,0,0,0.15);border-radius:18px;box-shadow:0 10px 32px -4px rgba(0,0,0,0.35),0 4px 14px rgba(0,0,0,0.18);font-family:"Microsoft YaHei","PingFang SC",sans-serif;z-index:1600;display:flex;flex-direction:column;overflow:hidden;animation:ms-pop .45s cubic-bezier(.23,1.4,.34,1);}

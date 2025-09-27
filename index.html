@@ -24,7 +24,7 @@
           <div class="tip-content">
               <div class="tip-icon">📱↻</div>
               <h3>获得最佳体验</h3>
-              <p>请在<strong>浏览器</strong>中打开此页面<br>并<strong>横屏显示</strong>以获得最佳观看效果</p>
+              <p>请在<strong>浏览器</strong>中打开此页面<br>并<strong>横屏显示</strong>以获得最佳观看效果<br><small>页面将在您点击后播放背景音乐</small></p>
               <div class="tip-actions">
                   <button id="continue-anyway" class="tip-btn">继续浏览</button>
                   <button id="copy-link" class="tip-btn-secondary">复制链接</button>
@@ -153,10 +153,114 @@
               }
           });
       })();
+      
+      // 音频自动播放处理
+      (function() {
+          const audio = document.getElementById('bgMusic');
+          const musicBtn = document.getElementById('music-toggle');
+          let isPlaying = false;
+          let userInteracted = false;
+          
+          if (!audio || !musicBtn) return;
+          
+          // 尝试自动播放（可能被浏览器阻止）
+          function tryAutoPlay() {
+              if (!userInteracted) return;
+              
+              const playPromise = audio.play();
+              if (playPromise !== undefined) {
+                  playPromise.then(() => {
+                      isPlaying = true;
+                      updateMusicButton();
+                      console.log('音频自动播放成功');
+                  }).catch(error => {
+                      console.log('音频自动播放被阻止:', error);
+                      isPlaying = false;
+                      updateMusicButton();
+                  });
+              }
+          }
+          
+          // 更新音乐按钮状态
+          function updateMusicButton() {
+              if (isPlaying) {
+                  musicBtn.textContent = '🔊';
+                  musicBtn.title = '暂停音乐';
+                  musicBtn.classList.add('playing');
+              } else {
+                  musicBtn.textContent = '🎵';
+                  musicBtn.title = '播放音乐';
+                  musicBtn.classList.remove('playing');
+              }
+          }
+          
+          // 音乐按钮点击事件
+          musicBtn.addEventListener('click', function() {
+              userInteracted = true;
+              
+              if (isPlaying) {
+                  audio.pause();
+                  isPlaying = false;
+              } else {
+                  const playPromise = audio.play();
+                  if (playPromise !== undefined) {
+                      playPromise.then(() => {
+                          isPlaying = true;
+                      }).catch(error => {
+                          console.log('播放失败:', error);
+                          isPlaying = false;
+                      });
+                  }
+              }
+              updateMusicButton();
+          });
+          
+          // 监听音频事件
+          audio.addEventListener('play', () => {
+              isPlaying = true;
+              updateMusicButton();
+          });
+          
+          audio.addEventListener('pause', () => {
+              isPlaying = false;
+              updateMusicButton();
+          });
+          
+          audio.addEventListener('ended', () => {
+              isPlaying = false;
+              updateMusicButton();
+          });
+          
+          // 监听用户交互事件，尝试启动音频
+          const interactionEvents = ['click', 'touchstart', 'keydown'];
+          function handleUserInteraction() {
+              userInteracted = true;
+              // 延迟尝试播放，避免干扰其他交互
+              setTimeout(() => {
+                  if (!isPlaying) {
+                      tryAutoPlay();
+                  }
+              }, 1000);
+              
+              // 只需要一次用户交互，后续可以移除监听器
+              interactionEvents.forEach(event => {
+                  document.removeEventListener(event, handleUserInteraction);
+              });
+          }
+          
+          interactionEvents.forEach(event => {
+              document.addEventListener(event, handleUserInteraction);
+          });
+          
+          // 初始化按钮状态
+          updateMusicButton();
+      })();
       </script>
 
-      <audio autoplay="autopaly">
+      <audio id="bgMusic" preload="auto" loop>
+          <source src="music/love.mp3" type="audio/mpeg" />
           <source src="music/love.mp3" type="audio/mp3" />
+          您的浏览器不支持音频播放。
       </audio>  
         <div id="main">
              <div id="wrap">
@@ -551,6 +655,7 @@
  <div id="scroll-progress"><div class="bar"></div></div>
  <button id="theme-toggle" class="theme-toggle" title="切换主题">🌗</button>
  <button id="memory-btn" class="memory-btn" title="打开/关闭记忆播放">🖼</button>
+ <button id="music-toggle" class="music-btn" title="播放/暂停音乐">🎵</button>
  <button id="firework-btn" class="firework-btn" title="双击释放烟花">🎆 双击放烟花</button>
 <script>
 // 组件交互脚本（不影响原心形树逻辑）
