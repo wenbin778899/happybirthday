@@ -49,7 +49,7 @@
 <span class="STYLE1"></span>
                   <!-- <div id="clock"></div> -->
               </div>
-                <canvas id="canvas" width="1100" height="680"></canvas>
+                <canvas id="canvas"></canvas>
             </div>
             
         </div>
@@ -65,17 +65,30 @@
             $("#error").show();
             return false;        }
 
-        var width = canvas.width();
-        var height = canvas.height();        
+        // 响应式Canvas尺寸计算
+        var isMobile = window.innerWidth <= 768;
+        var width = isMobile ? Math.min(window.innerWidth - 10, 400) : Math.min(canvas.parent().width(), 1100);
+        var height = isMobile ? Math.min(window.innerHeight * 0.5, 400) : Math.min(canvas.parent().height(), 680);
+        
         canvas.attr("width", width);
         canvas.attr("height", height);
+        canvas.css({'width': width + 'px', 'height': height + 'px'});
         var opts = {
             seed: {
-                x: width / 2 - 20,
+                x: width / 2 - (isMobile ? 10 : 20),
                 color: "rgb(190, 26, 37)",
-                scale: 2
+                scale: isMobile ? 1.2 : 2
             },
-            branch: [
+            branch: isMobile ? [
+                // 移动端简化的树枝配置
+                [width * 0.5, height, width * 0.52, height * 0.4, width * 0.45, height * 0.3, 20, 80, [
+                    [width * 0.49, height * 0.7, width * 0.41, height * 0.6, width * 0.31, height * 0.58, 8, 60],
+                    [width * 0.5, height * 0.65, width * 0.55, height * 0.52, width * 0.62, height * 0.5, 8, 60],
+                    [width * 0.49, height * 0.41, width * 0.49, height * 0.36, width * 0.49, height * 0.32, 2, 30],
+                    [width * 0.5, height * 0.58, width * 0.38, height * 0.36, width * 0.3, height * 0.35, 6, 50]
+                ]]
+            ] : [
+                // 桌面端原始配置
                 [535, 680, 570, 250, 500, 200, 30, 100, [
                     [540, 500, 455, 417, 340, 400, 13, 100, [
                         [450, 435, 434, 430, 394, 395, 2, 40]
@@ -94,9 +107,9 @@
                 ]] 
             ],
             bloom: {
-                num: 700,
-                width: 1080,
-                height: 650,
+                num: isMobile ? 300 : 700,
+                width: width,
+                height: height,
             },
             footer: {
                 width: 1200,
@@ -110,20 +123,69 @@
         var foot = tree.footer;
         var hold = 1;
 
-        canvas.click(function(e) {
+        // 移动端触摸支持
+        function getEventPos(e) {
+            if (e.touches && e.touches.length > 0) {
+                return {
+                    pageX: e.touches[0].pageX,
+                    pageY: e.touches[0].pageY
+                };
+            }
+            return {
+                pageX: e.pageX,
+                pageY: e.pageY
+            };
+        }
+        
+        function handleInteraction(e) {
             var offset = canvas.offset(), x, y;
-            x = e.pageX - offset.left;
-            y = e.pageY - offset.top;
+            var pos = getEventPos(e);
+            x = pos.pageX - offset.left;
+            y = pos.pageY - offset.top;
+            
+            // 适配Canvas的实际显示尺寸
+            var canvasDisplay = {
+                width: canvas.width(),
+                height: canvas.height()
+            };
+            var canvasActual = {
+                width: canvas.attr('width'),
+                height: canvas.attr('height')
+            };
+            
+            // 坐标转换
+            x = x * (canvasActual.width / canvasDisplay.width);
+            y = y * (canvasActual.height / canvasDisplay.height);
+            
             if (seed.hover(x, y)) {
                 hold = 0; 
-                canvas.unbind("click");
-                canvas.unbind("mousemove");
+                canvas.unbind("click touchstart");
+                canvas.unbind("mousemove touchmove");
                 canvas.removeClass('hand');
             }
-        }).mousemove(function(e){
+        }
+        
+        canvas.on('click touchstart', function(e) {
+            e.preventDefault();
+            handleInteraction(e);
+        }).on('mousemove touchmove', function(e){
             var offset = canvas.offset(), x, y;
-            x = e.pageX - offset.left;
-            y = e.pageY - offset.top;
+            var pos = getEventPos(e);
+            x = pos.pageX - offset.left;
+            y = pos.pageY - offset.top;
+            
+            var canvasDisplay = {
+                width: canvas.width(),
+                height: canvas.height()
+            };
+            var canvasActual = {
+                width: canvas.attr('width'),
+                height: canvas.attr('height')
+            };
+            
+            x = x * (canvasActual.width / canvasDisplay.width);
+            y = y * (canvasActual.height / canvasDisplay.height);
+            
             canvas.toggleClass('hand', seed.hover(x, y));
         });
 
@@ -208,6 +270,17 @@
             $await(jumpAnimate());
         }));
 
+        // 添加窗口resize监听（移动端旋转适配）
+        var resizeTimer;
+        $(window).on('resize orientationchange', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (Math.abs(window.orientation) === 90 || window.innerWidth !== clientWidth) {
+                    location.reload(); // 简单粗暴但有效的方式
+                }
+            }, 300);
+        });
+        
         runAsync().start();
     })();
     </script>
