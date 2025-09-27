@@ -317,6 +317,38 @@ body.dark .mini-slideshow .ms-progress{background:rgba(255,255,255,0.15);}
 @media (orientation: landscape) and (max-width: 900px) {
     .mobile-tip{display:none !important;}
 }
+
+/* 横屏模式优化 */
+@media (orientation: landscape) and (max-height: 600px) {
+    #wrap{width:100%;height:auto;padding:0 5px;overflow:hidden;}
+    #text{position:static !important;width:50% !important;float:left;padding:10px;box-sizing:border-box;height:auto;}
+    #canvas{width:45% !important;height:auto !important;max-height:350px;float:right;margin:10px 0;}
+    
+    /* 清除浮动 */
+    #wrap:after{content:"";display:table;clear:both;}
+    
+    /* 横屏时按钮位置调整 */
+    .memory-btn{right:10px;bottom:80px;width:45px;height:45px;font-size:18px;}
+    .music-btn{right:10px;bottom:135px;width:45px;height:45px;font-size:18px;}
+    .firework-btn{right:10px;bottom:190px;padding:8px 12px;font-size:14px;}
+    .theme-toggle{right:10px;bottom:40px;padding:6px 10px;font-size:12px;}
+    .back-to-top{right:10px;bottom:5px;padding:6px 10px;font-size:14px;}
+    
+    /* 横屏时隐藏部分装饰元素节省空间 */
+    .slideshow{display:none;}
+    #bro-gallery{display:none;}
+}
+
+/* 横屏手机专用布局 */
+@media (orientation: landscape) and (max-width: 900px) and (max-height: 500px) {
+    #wrap{flex-direction:row;display:flex;align-items:center;height:100vh;}
+    #text{width:40%;height:auto;padding:5px;}
+    #text .say{font-size:14px;line-height:1.4;margin-bottom:5px;}
+    #text h1{font-size:18px;}
+    #text h2{font-size:16px;}
+    #canvas{width:55%;height:80vh;max-height:400px;margin:0;}
+}
+
 /* 暗色主题适配 */
 body.dark .tip-content{
     background:#2a2a2a;

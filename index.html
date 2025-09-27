@@ -78,9 +78,14 @@
               setTimeout(function() {
                   const tip = document.getElementById('mobile-landscape-tip');
                   if (tip) {
-                      if (isPortrait() && (isMobileDevice() || isInAppBrowser())) {
+                      // 检查当前方向
+                      var isCurrentlyPortrait = window.innerHeight > window.innerWidth;
+                      var isLandscape = window.innerWidth > window.innerHeight;
+                      
+                      if (isCurrentlyPortrait && (isMobileDevice() || isInAppBrowser()) && !sessionStorage.getItem('landscapeTipDismissed')) {
                           tip.style.display = 'flex';
-                      } else {
+                      } else if (isLandscape) {
+                          // 横屏时自动隐藏提示
                           tip.style.display = 'none';
                       }
                   }
@@ -412,7 +417,18 @@
             try {
                 var coords = getCanvasCoordinates(e);
                 
-                console.log('Touch coordinates:', coords.x, coords.y); // 调试信息
+                console.log('Touch coordinates:', coords.x, coords.y, 'Seed position:', seedX, seedY, 'Distance:', distance); // 调试信息
+                
+                // 显示调试信息（开发时使用）
+                if (isMobile && window.location.hash === '#debug') {
+                    var debugInfo = document.getElementById('debug-info') || document.createElement('div');
+                    debugInfo.id = 'debug-info';
+                    debugInfo.style.cssText = 'position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.8);color:white;padding:10px;font-size:12px;z-index:10000;';
+                    debugInfo.innerHTML = `Touch: (${Math.round(coords.x)}, ${Math.round(coords.y)})<br>Seed: (${Math.round(seedX)}, ${Math.round(seedY)})<br>Distance: ${Math.round(distance)}<br>Radius: ${hitRadius}<br>Canvas: ${canvas.attr('width')}x${canvas.attr('height')}`;
+                    if (!document.getElementById('debug-info')) {
+                        document.body.appendChild(debugInfo);
+                    }
+                }
                 
                 // 移动端增大点击区域
                 var hitRadius = isMobile ? 30 : 15;
@@ -586,13 +602,67 @@
 
         // 添加窗口resize监听（移动端旋转适配）
         var resizeTimer;
+        var lastOrientation = window.orientation;
+        var lastWidth = window.innerWidth;
+        var lastHeight = window.innerHeight;
+        
+        function handleOrientationChange() {
+            var currentOrientation = window.orientation;
+            var currentWidth = window.innerWidth;
+            var currentHeight = window.innerHeight;
+            
+            // 检查是否真的发生了旋转
+            var orientationChanged = currentOrientation !== lastOrientation;
+            var sizeChanged = Math.abs(currentWidth - lastWidth) > 50 || Math.abs(currentHeight - lastHeight) > 50;
+            
+            if (orientationChanged || sizeChanged) {
+                console.log('Screen orientation/size changed, updating canvas...');
+                
+                // 重新计算Canvas尺寸
+                var newIsMobile = currentWidth <= 768;
+                var newWidth = newIsMobile ? Math.min(currentWidth - 10, 400) : Math.min(1100, currentWidth - 100);
+                var newHeight = newIsMobile ? Math.min(currentHeight * 0.5, 400) : Math.min(680, currentHeight - 100);
+                
+                // 更新Canvas尺寸
+                canvas.attr("width", newWidth);
+                canvas.attr("height", newHeight);
+                canvas.css({'width': newWidth + 'px', 'height': newHeight + 'px'});
+                
+                // 重新绑定事件处理器（因为坐标系统已经改变）
+                canvas.off('click touchstart mousemove touchmove');
+                
+                // 重新绑定触摸和点击事件
+                canvas.on('click touchstart', function(e) {
+                    e.preventDefault();
+                    handleInteraction(e);
+                }).on('mousemove touchmove', function(e){
+                    var offset = canvas.offset(), x, y;
+                    var pos = getEventPos(e);
+                    x = pos.pageX - offset.left;
+                    y = pos.pageY - offset.top;
+                    
+                    var rect = canvas[0].getBoundingClientRect();
+                    var scaleX = canvas.attr('width') / rect.width;
+                    var scaleY = canvas.attr('height') / rect.height;
+                    
+                    x *= scaleX;
+                    y *= scaleY;
+                    
+                    canvas.toggleClass('hand', seed.hover(x, y));
+                });
+                
+                // 更新记录的状态
+                lastOrientation = currentOrientation;
+                lastWidth = currentWidth;
+                lastHeight = currentHeight;
+                
+                console.log('Canvas updated:', newWidth + 'x' + newHeight);
+            }
+        }
+        
         $(window).on('resize orientationchange', function() {
             clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(function() {
-                if (Math.abs(window.orientation) === 90 || window.innerWidth !== clientWidth) {
-                    location.reload(); // 简单粗暴但有效的方式
-                }
-            }, 300);
+            resizeTimer = setTimeout(handleOrientationChange, 500); // 增加延迟确保旋转动画完成
         });
         
         // 移动端爱心点击提示
