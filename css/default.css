@@ -2,10 +2,10 @@ body{margin:0;padding:0;background:#ffe;font-size:14px;font-family:'寰蒋闆
 a {color:#000;font-size:14px;}
 #main{width:100%;}
 #wrap{position:relative;margin:0 auto;width:1100px;height:680px;margin-top:10px;}
-#text{width:400px;height:425px;left:60px;top:30px;position:absolute;}
+#text{width:400px;height:425px;left:60px;top:60px;position:absolute;}
 /* 移动端文本区域布局重置 */
 @media (max-width:768px){
-	#text{position:static !important;left:auto !important;top:auto !important;width:100% !important;height:auto !important;}
+    #text{position:static !important;left:auto !important;top:auto !important;width:100% !important;height:auto !important;margin-top:12px !important;}
 }
 #code{display:none;font-size:16px;}
 #clock-box {position:absolute;left:60px;top:550px;font-size:28px;display:none;}
@@ -67,9 +67,10 @@ button, .memory-btn, .firework-btn, .theme-toggle, .back-to-top {
 }
 
 /* 平板适配 */
+
 @media (max-width:768px){
 	#wrap{width:100%;height:auto;padding:0 10px;box-sizing:border-box;position:relative;}
-	#text{position:static;width:100%;padding:20px;box-sizing:border-box;text-align:center;margin-bottom:20px;}
+    #text{position:static;width:100%;padding:20px;box-sizing:border-box;text-align:center;margin-bottom:20px;margin-top:12px;}
 	#text .say{font-size:18px;line-height:1.6;margin-bottom:10px;}
 	#canvas{width:100% !important;height:auto !important;max-width:400px;max-height:400px;margin:0 auto;display:block;}
 	.slideshow{width:95%;margin:20px auto;}
@@ -88,7 +89,7 @@ button, .memory-btn, .firework-btn, .theme-toggle, .back-to-top {
 /* 手机适配 */
 @media (max-width:480px){
 	#wrap{padding:0 5px;}
-	#text{padding:15px;}
+    #text{padding:15px;margin-top:10px;}
 	#text .say{font-size:16px;}
 	#text h1{font-size:24px;}
 	#text h2{font-size:20px;}
